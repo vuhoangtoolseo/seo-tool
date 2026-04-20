@@ -233,6 +233,10 @@ tr:hover td{background:var(--bg3)}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
         Viết lại bài có sẵn
       </div>
+      <div class="nav-item" onclick="showPanel('strategy')" id="nav-strategy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+        Chiến lược Content
+      </div>
       <div class="nav-section">Quản lý</div>
       <div class="nav-item" onclick="showPanel('manage')" id="nav-manage">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -292,13 +296,16 @@ tr:hover td{background:var(--bg3)}
             </div>
           </div>
 
-          <!-- Bước 2: Dàn ý preview -->
+          <!-- Bước 2: Dàn ý có thể chỉnh sửa -->
           <div class="card" id="card-outline" style="display:none">
             <div class="card-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-              Bước 2 — Duyệt dàn ý
+              Bước 2 — Duyệt & chỉnh sửa dàn ý
             </div>
-            <div id="outline-preview"></div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Chỉnh sửa trực tiếp bên dưới trước khi viết bài. Dùng ## cho H2, ### cho H3.</div>
+            <textarea id="outline-editor" rows="12"
+              style="font-size:12px;line-height:1.8;font-family:monospace;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);width:100%;padding:10px;resize:vertical"
+              placeholder="## Tiêu đề H2&#10;### Tiêu đề H3&#10;## Tiêu đề H2 khác..."></textarea>
             <div class="btn-group">
               <button class="btn btn-primary" onclick="startWrite()" id="btn-write">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -518,6 +525,92 @@ tr:hover td{background:var(--bg3)}
       </div>
     </div>
 
+    <!-- ═══ PANEL: CHIẾN LƯỢC CONTENT ═══ -->
+    <div class="panel" id="panel-strategy">
+      <div class="section-header">
+        <h2>Chiến lược Content SEO</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div id="strat-gsc-status" style="font-size:12px;color:var(--text3)"></div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="card" id="strat-input-card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Phân tích chủ đề
+        </div>
+        <div class="grid2">
+          <div>
+            <label>Chủ đề gốc (Pillar Topic)</label>
+            <input id="strat-topic" placeholder="vd: Motor điện, Nội thất gỗ, Ghế nhựa...">
+            <label>Ngành / lĩnh vực</label>
+            <input id="strat-industry" placeholder="vd: Thiết bị điện công nghiệp, Nội thất">
+            <label>Đối tượng khách hàng</label>
+            <input id="strat-audience" placeholder="vd: Kỹ sư MEP, Chủ doanh nghiệp sản xuất">
+            <label>Ghi chú thêm (tùy chọn)</label>
+            <textarea id="strat-note" rows="2" placeholder="vd: tập trung thị trường B2B miền Nam, đối thủ chính là..."></textarea>
+          </div>
+          <div>
+            <label>Google Search Console</label>
+            <div id="strat-gsc-card" style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;font-size:12px">
+              <div id="strat-gsc-info" style="color:var(--text3);margin-bottom:10px">Kết nối GSC để lấy data từ khóa thực</div>
+              <button class="btn btn-secondary btn-sm" onclick="stratFetchGSC()" id="btn-strat-gsc">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+                Kéo data GSC
+              </button>
+              <div id="strat-gsc-preview" style="margin-top:8px;max-height:120px;overflow-y:auto"></div>
+            </div>
+            <div class="alert alert-info" style="margin-top:10px;font-size:11px;line-height:1.6">
+              Nếu website mới chưa có GSC data, AI sẽ tự research dựa trên chủ đề và ngành.
+            </div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="runStrategy()" id="btn-run-strat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Phân tích & lên chiến lược
+          </button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="strat-results" style="display:none">
+
+        <!-- View toggle -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+          <span style="font-size:13px;font-weight:500">Hiển thị:</span>
+          <button class="btn btn-primary btn-sm" id="btn-view-spider" onclick="stratSetView('spider')">Mạng nhện</button>
+          <button class="btn btn-secondary btn-sm" id="btn-view-table" onclick="stratSetView('table')">Bảng danh sách</button>
+          <div style="margin-left:auto;font-size:12px;color:var(--text3)" id="strat-summary"></div>
+        </div>
+
+        <!-- Spider view -->
+        <div id="strat-spider-view" class="card" style="padding:12px;overflow:hidden">
+          <div id="strat-spider-container" style="width:100%;height:500px;position:relative;overflow:hidden"></div>
+        </div>
+
+        <!-- Table view -->
+        <div id="strat-table-view" class="card" style="padding:0;overflow:hidden;display:none">
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr>
+                <th style="width:40px">#</th>
+                <th>Tiêu đề bài đề xuất</th>
+                <th>Từ khóa chính</th>
+                <th>Loại bài</th>
+                <th>Độ ưu tiên</th>
+                <th>GSC Data</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="strat-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- ═══ PANEL: QUẢN LÝ ═══ -->
     <div class="panel" id="panel-manage">
       <div class="section-header">
@@ -669,9 +762,263 @@ let S={
   outline:'',
 };
 
+// ─── Content Strategy ───
+let stratData=null;
+let stratGscData=[];
+let stratView='spider';
+
+async function stratFetchGSC(){
+  if(!gdToken){toast('Đăng nhập Google Drive trước để dùng GSC','error');return;}
+  const site=S.currentSite;
+  if(!site){toast('Chọn website trước','error');return;}
+  const btn=document.getElementById('btn-strat-gsc');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang tải...';
+  try{
+    const domain=new URL(site.url).hostname;
+    const siteUrl='sc-domain:'+domain;
+    const endDate=new Date().toISOString().slice(0,10);
+    const startDate=new Date(Date.now()-90*24*60*60*1000).toISOString().slice(0,10);
+    const r=await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,{
+      method:'POST',
+      headers:{Authorization:'Bearer '+gdToken,'Content-Type':'application/json'},
+      body:JSON.stringify({startDate,endDate,dimensions:['query'],rowLimit:100,dataState:'all'})
+    });
+    if(!r.ok){
+      // Thử với https://domain
+      const r2=await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(site.url+'/').replace('%2F%2F','%2F%2F')}/searchAnalytics/query`,{
+        method:'POST',
+        headers:{Authorization:'Bearer '+gdToken,'Content-Type':'application/json'},
+        body:JSON.stringify({startDate,endDate,dimensions:['query'],rowLimit:100,dataState:'all'})
+      });
+      if(!r2.ok)throw new Error('Không tìm thấy site trong GSC. Kiểm tra site đã verify chưa.');
+      const d2=await r2.json();
+      stratGscData=d2.rows||[];
+    } else {
+      const d=await r.json();
+      stratGscData=d.rows||[];
+    }
+    const preview=document.getElementById('strat-gsc-preview');
+    if(!stratGscData.length){
+      preview.innerHTML='<div style="color:var(--text3)">Chưa có data (site mới)</div>';
+      document.getElementById('strat-gsc-info').textContent='Site mới — AI sẽ research thuần túy';
+    } else {
+      document.getElementById('strat-gsc-info').innerHTML=`<span style="color:var(--green)">Đã tải ${stratGscData.length} từ khóa từ GSC</span>`;
+      preview.innerHTML=stratGscData.slice(0,10).map(r=>`
+        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:11px">
+          <span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${r.keys[0]}</span>
+          <span style="color:var(--text3);margin-left:8px;flex-shrink:0">${Math.round(r.clicks||0)} clicks</span>
+        </div>`).join('');
+    }
+    toast('Đã tải data GSC!');
+  }catch(e){
+    document.getElementById('strat-gsc-info').textContent='Lỗi: '+e.message;
+    toast('Không lấy được GSC data — AI sẽ research thuần túy','error');
+    stratGscData=[];
+  }finally{
+    btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Tải lại GSC';
+  }
+}
+
+async function runStrategy(){
+  const topic=document.getElementById('strat-topic').value.trim();
+  const industry=document.getElementById('strat-industry').value.trim();
+  const audience=document.getElementById('strat-audience').value.trim();
+  const note=document.getElementById('strat-note').value.trim();
+  if(!topic){toast('Nhập chủ đề gốc trước','error');return;}
+  if(!S.apiKey){toast('Cần API key Claude','error');return;}
+  const btn=document.getElementById('btn-run-strat');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang phân tích...';
+
+  const gscSection=stratGscData.length
+    ? `DATA TỪ GOOGLE SEARCH CONSOLE (90 ngày gần nhất):
+${stratGscData.slice(0,50).map(r=>`- "${r.keys[0]}" | clicks: ${Math.round(r.clicks||0)} | impressions: ${Math.round(r.impressions||0)} | position: ${(r.position||0).toFixed(1)}`).join('\n')}`
+    : 'KHÔNG CÓ GSC DATA (website mới hoặc chưa kết nối) — hãy research thuần túy dựa trên kiến thức.';
+
+  const prompt=`Bạn là chuyên gia chiến lược SEO Content. Phân tích và lên kế hoạch content hoàn chỉnh.
+
+CHỦ ĐỀ GỐC (PILLAR): ${topic}
+NGÀNH: ${industry||'Chưa xác định'}
+ĐỐI TƯỢNG: ${audience||'Chưa xác định'}
+${note?'GHI CHÚ: '+note:''}
+
+${gscSection}
+
+NHIỆM VỤ:
+1. Xác định 1 Pillar Page (bài trụ cột) cho chủ đề gốc
+2. Đề xuất 8-12 Cluster Pages (bài vệ tinh) xoay quanh Pillar
+3. Mỗi Cluster phải: khác chủ đề nhau, bổ sung cho Pillar, không cạnh tranh nhau
+4. Phân loại: informational (thông tin), commercial (thương mại), transactional (mua hàng)
+5. Đánh giá độ ưu tiên: high/medium/low dựa trên search intent và GSC data (nếu có)
+6. Xác định internal link: Cluster nào link tới Pillar, Cluster nào link chéo nhau
+
+Trả về JSON (KHÔNG có text khác):
+{
+  "pillar": {
+    "title": "...",
+    "keyword": "...",
+    "description": "...",
+    "type": "pillar"
+  },
+  "clusters": [
+    {
+      "id": 1,
+      "title": "...",
+      "keyword": "...",
+      "description": "...",
+      "type": "informational|commercial|transactional",
+      "priority": "high|medium|low",
+      "gsc_clicks": 0,
+      "gsc_impressions": 0,
+      "links_to_pillar": true,
+      "links_to_clusters": [2, 3]
+    }
+  ]
+}`;
+
+  try{
+    const resp=await callClaude(prompt,'Chỉ trả về JSON hợp lệ, không có text khác.',3000);
+    const clean=resp.replace(/```json|```/g,'').trim();
+    const startIdx=clean.indexOf('{');
+    const endIdx=clean.lastIndexOf('}');
+    stratData=JSON.parse(clean.substring(startIdx,endIdx+1));
+
+    // Điền GSC data thực vào clusters nếu có
+    if(stratGscData.length){
+      stratData.clusters.forEach(c=>{
+        const match=stratGscData.find(g=>g.keys[0].toLowerCase().includes(c.keyword.toLowerCase().split(' ')[0]));
+        if(match){c.gsc_clicks=Math.round(match.clicks||0);c.gsc_impressions=Math.round(match.impressions||0);}
+      });
+    }
+
+    document.getElementById('strat-results').style.display='block';
+    document.getElementById('strat-summary').textContent=`1 Pillar + ${stratData.clusters.length} Cluster pages`;
+    stratSetView('spider');
+    document.getElementById('strat-results').scrollIntoView({behavior:'smooth'});
+    toast('Chiến lược đã sẵn sàng!');
+  }catch(e){
+    toast('Lỗi phân tích: '+e.message,'error');
+  }finally{
+    btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Phân tích & lên chiến lược';
+  }
+}
+
+function stratSetView(view){
+  stratView=view;
+  document.getElementById('strat-spider-view').style.display=view==='spider'?'block':'none';
+  document.getElementById('strat-table-view').style.display=view==='table'?'block':'none';
+  document.getElementById('btn-view-spider').className=view==='spider'?'btn btn-primary btn-sm':'btn btn-secondary btn-sm';
+  document.getElementById('btn-view-table').className=view==='table'?'btn btn-primary btn-sm':'btn btn-secondary btn-sm';
+  if(view==='spider')renderSpider();
+  else renderStratTable();
+}
+
+function renderSpider(){
+  if(!stratData)return;
+  const container=document.getElementById('strat-spider-container');
+  const W=container.offsetWidth||700;
+  const H=500;
+  const cx=W/2,cy=H/2;
+  const n=stratData.clusters.length;
+  const R=Math.min(W,H)*0.36;
+
+  const typeColor={informational:'#6c63ff',commercial:'#22c55e',transactional:'#f59e0b',pillar:'#8b83ff'};
+  const prioSize={high:16,medium:13,low:11};
+
+  let svg=`<svg width="${W}" height="${H}" style="font-family:inherit">`;
+
+  // Link lines từ cluster về pillar
+  stratData.clusters.forEach((c,i)=>{
+    const angle=(2*Math.PI*i/n)-Math.PI/2;
+    const x=cx+R*Math.cos(angle);
+    const y=cy+R*Math.sin(angle);
+    svg+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#2e3350" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  });
+
+  // Link chéo giữa clusters
+  stratData.clusters.forEach((c,i)=>{
+    const angle1=(2*Math.PI*i/n)-Math.PI/2;
+    const x1=cx+R*Math.cos(angle1);
+    const y1=cy+R*Math.sin(angle1);
+    (c.links_to_clusters||[]).forEach(targetId=>{
+      const j=stratData.clusters.findIndex(cc=>cc.id===targetId);
+      if(j>i){
+        const angle2=(2*Math.PI*j/n)-Math.PI/2;
+        const x2=cx+R*Math.cos(angle2);
+        const y2=cy+R*Math.sin(angle2);
+        svg+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#3a3560" stroke-width="1" stroke-dasharray="2 4"/>`;
+      }
+    });
+  });
+
+  // Pillar node ở giữa
+  svg+=`<g style="cursor:pointer" onclick="stratWritePost(null)">
+    <circle cx="${cx}" cy="${cy}" r="42" fill="#1e1b4b" stroke="#8b83ff" stroke-width="2"/>
+    <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#8b83ff" font-size="11" font-weight="600">PILLAR</text>
+    <text x="${cx}" y="${cy+8}" text-anchor="middle" fill="#c4b5fd" font-size="10" font-weight="500">${truncate(stratData.pillar.keyword,18)}</text>
+  </g>`;
+
+  // Cluster nodes
+  stratData.clusters.forEach((c,i)=>{
+    const angle=(2*Math.PI*i/n)-Math.PI/2;
+    const x=cx+R*Math.cos(angle);
+    const y=cy+R*Math.sin(angle);
+    const col=typeColor[c.type]||'#6c63ff';
+    const r=c.priority==='high'?34:c.priority==='medium'?28:23;
+    const kw=truncate(c.keyword,16);
+    svg+=`<g style="cursor:pointer" onclick="stratWritePost(${i})">
+      <circle cx="${x}" cy="${y}" r="${r}" fill="${col}22" stroke="${col}" stroke-width="1.5"/>
+      <text x="${x}" y="${y-3}" text-anchor="middle" fill="${col}" font-size="9" font-weight="600">${kw}</text>
+      <text x="${x}" y="${y+9}" text-anchor="middle" fill="${col}99" font-size="8">${c.priority}</text>
+    </g>`;
+  });
+
+  // Legend
+  svg+=`<g>
+    <rect x="10" y="${H-60}" width="180" height="50" rx="6" fill="#1a1d27" stroke="#2e3350" stroke-width="0.5"/>
+    <circle cx="22" cy="${H-48}" r="4" fill="#6c63ff"/><text x="30" y="${H-44}" fill="#9ba3c0" font-size="9">Informational</text>
+    <circle cx="22" cy="${H-34}" r="4" fill="#22c55e"/><text x="30" y="${H-30}" fill="#9ba3c0" font-size="9">Commercial</text>
+    <circle cx="90" cy="${H-48}" r="4" fill="#f59e0b"/><text x="98" y="${H-44}" fill="#9ba3c0" font-size="9">Transactional</text>
+    <text x="90" y="${H-30}" fill="#9ba3c0" font-size="9">Kích thước = Ưu tiên</text>
+  </g>`;
+
+  svg+='</svg>';
+  container.innerHTML=svg;
+}
+
+function renderStratTable(){
+  if(!stratData)return;
+  const tbody=document.getElementById('strat-table-body');
+  const all=[{...stratData.pillar,id:0,priority:'high',type:'pillar',links_to_pillar:false},...stratData.clusters];
+  const prioColor={high:'pill-green',medium:'pill-yellow',low:'pill-blue'};
+  const typeLabel={pillar:'Pillar',informational:'Thông tin',commercial:'Thương mại',transactional:'Mua hàng'};
+  tbody.innerHTML=all.map((c,i)=>`
+    <tr style="${c.type==='pillar'?'background:rgba(108,99,255,0.08)':''}">
+      <td style="color:var(--text3)">${i}</td>
+      <td style="font-size:12px;font-weight:${c.type==='pillar'?'600':'400'}">${c.title}</td>
+      <td style="color:var(--accent2);font-size:12px">${c.keyword}</td>
+      <td><span class="pill ${c.type==='pillar'?'pill-purple':c.type==='informational'?'pill-blue':c.type==='commercial'?'pill-green':'pill-yellow'}">${typeLabel[c.type]||c.type}</span></td>
+      <td><span class="pill ${prioColor[c.priority]||'pill-blue'}">${c.priority==='high'?'Cao':c.priority==='medium'?'Trung bình':'Thấp'}</span></td>
+      <td style="font-size:11px;color:var(--text3)">${c.gsc_clicks?c.gsc_clicks+' clicks':c.gsc_impressions?c.gsc_impressions+' impr':'—'}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="stratWritePost(${i===0?'null':i-1})" style="font-size:11px;padding:5px 10px">Viết bài</button></td>
+    </tr>`).join('');
+}
+
+function stratWritePost(clusterIdx){
+  if(!stratData)return;
+  const item=clusterIdx===null?stratData.pillar:stratData.clusters[clusterIdx];
+  showPanel('write');
+  document.getElementById('kw').value=item.keyword;
+  document.getElementById('ai-note').value=item.description||'';
+  toast('Đã chuyển sang viết bài: '+item.keyword);
+}
+
+function truncate(str,n){
+  return str&&str.length>n?str.substring(0,n-1)+'…':str||'';
+}
+
 // ─── Google Drive Sync ───
 const GD_FILE_NAME='seo-writer-data.json';
-const GD_SCOPE='https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file';
+const GD_SCOPE='https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/webmasters.readonly';
 let gdToken=null;
 let gdFileId=LS.get('gd_file_id',null);
 let gdClientId=LS.get('gd_client_id','');
@@ -1041,37 +1388,29 @@ Chỉ trả về dàn ý, không có lời giải thích.`;
       outline=await callClaude(prompt,'Bạn là chuyên gia SEO content tiếng Việt.',1500);
     }
     S.outline=outline;
-    renderOutlinePreview(outline);
+    document.getElementById('outline-editor').value=outline;
     document.getElementById('card-outline').style.display='block';
     document.getElementById('card-outline').scrollIntoView({behavior:'smooth'});
-    toast('Dàn ý đã sẵn sàng — hãy kiểm tra và duyệt');
+    toast('Dàn ý đã sẵn sàng — chỉnh sửa nếu cần rồi bấm Viết bài');
   }catch(e){toast('Lỗi: '+e.message,'error');}
   finally{btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Tạo dàn ý';}
 }
 
-function renderOutlinePreview(outline){
-  const lines=outline.split('\n').filter(l=>l.trim());
-  let html='';
-  lines.forEach(line=>{
-    if(line.startsWith('## ')){
-      html+=`<div class="outline-item"><div class="outline-h2">${line.replace('## ','')}</div>`;
-    } else if(line.startsWith('### ')){
-      html+=`<div class="outline-h3">↳ ${line.replace('### ','')}</div>`;
-    } else if(line.startsWith('- ')){
-      html+=`<div style="font-size:11px;color:var(--text3);margin-left:12px;margin-top:2px">${line}</div>`;
-    }
-  });
-  document.getElementById('outline-preview').innerHTML=html||`<pre style="font-size:12px;color:var(--text2);white-space:pre-wrap">${outline}</pre>`;
 }
 
 async function regenOutline(){
   document.getElementById('custom-outline').value='';
+  document.getElementById('outline-editor').value='';
   document.getElementById('card-outline').style.display='none';
   await startOutline();
 }
 
 // ─── BƯỚC 2: Viết bài ───
 async function startWrite(){
+  // Lấy dàn ý từ textarea (có thể đã được chỉnh sửa)
+  const editedOutline=document.getElementById('outline-editor').value.trim();
+  if(editedOutline) S.outline=editedOutline;
+
   const kw=document.getElementById('kw').value.trim();
   const words=document.getElementById('ai-words').value||1200;
   const tone=document.getElementById('ai-tone').value;
@@ -1090,10 +1429,12 @@ async function startWrite(){
   }
 
   try{
-    const prompt=`Viết bài viết SEO hoàn chỉnh bằng tiếng Việt theo dàn ý sau.
+    const wordsMin=Math.round(words*0.9);
+    const wordsMax=Math.round(words*1.1);
+    const prompt=`Viết bài viết SEO bằng tiếng Việt theo dàn ý sau.
 
 Từ khóa chính: ${kw}
-Số từ: khoảng ${words} từ
+Số từ BẮT BUỘC: ${wordsMin}-${wordsMax} từ (KHÔNG được vượt quá ${wordsMax} từ)
 Giọng văn: ${tone}
 ${note?'Ghi chú: '+note:''}
 
@@ -1108,6 +1449,7 @@ Yêu cầu bài viết:
 - Có bảng so sánh nếu phù hợp với chủ đề
 - Kết bài có CTA rõ ràng
 - Văn phong ${tone}, không robot
+- QUAN TRỌNG: Kiểm soát độ dài — mỗi đoạn văn tối đa 4-5 câu, không liệt kê quá nhiều, đảm bảo tổng bài KHÔNG vượt quá ${wordsMax} từ
 
 Chỉ trả về nội dung bài viết (markdown), không có lời giải thích.`;
 
@@ -1561,7 +1903,7 @@ function savePostRecord({status,url}){
 function updateBadge(){document.getElementById('badge-count').textContent=S.posts.length;}
 
 function resetWrite(){
-  ['kw','title','meta','ai-note','custom-outline'].forEach(id=>{
+  ['kw','title','meta','ai-note','custom-outline','outline-editor'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
   document.getElementById('ai-words').value='1200';
