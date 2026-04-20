@@ -139,21 +139,22 @@ tr:hover td{background:var(--bg3)}
 
 /* Rich editor */
 #content-editor:empty:before{content:attr(data-placeholder);color:var(--text3);pointer-events:none}
-#content-editor h1{font-size:22px;font-weight:700;margin:20px 0 10px;color:var(--text)}
-#content-editor h2{font-size:18px;font-weight:600;margin:18px 0 8px;color:var(--text);border-bottom:2px solid var(--accent);padding-bottom:4px}
-#content-editor h3{font-size:15px;font-weight:600;margin:14px 0 6px;color:var(--text2)}
-#content-editor p{margin:8px 0;color:var(--text)}
-#content-editor strong{color:var(--text);font-weight:700}
+#content-editor h1{font-size:22px;font-weight:700;margin:20px 0 10px}
+#content-editor h2{font-size:18px;font-weight:600;margin:18px 0 8px;border-bottom:2px solid var(--accent);padding-bottom:4px}
+#content-editor h3{font-size:15px;font-weight:600;margin:14px 0 6px}
+#content-editor h4{font-size:14px;font-weight:600;margin:10px 0 4px}
+#content-editor p{margin:8px 0;line-height:1.8}
+#content-editor strong{font-weight:700}
 #content-editor em{font-style:italic}
 #content-editor ul,#content-editor ol{padding-left:22px;margin:8px 0}
-#content-editor li{margin:4px 0;color:var(--text)}
+#content-editor li{margin:4px 0}
 #content-editor a{color:var(--accent2)}
 #content-editor table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
 #content-editor th{background:var(--bg3);color:var(--text);padding:7px 10px;border:1px solid var(--border);text-align:left;font-weight:600}
-#content-editor td{padding:7px 10px;border:1px solid var(--border);color:var(--text)}
-#content-editor blockquote{border-left:3px solid var(--accent);margin:10px 0;padding:8px 14px;background:var(--bg3);color:var(--text2)}
-.tbtn{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:4px 9px;border-radius:4px;cursor:pointer;font-size:12px;line-height:1;transition:all .15s}
-.tbtn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+#content-editor td{padding:7px 10px;border:1px solid var(--border)}
+#content-editor blockquote{border-left:3px solid var(--accent);margin:10px 0;padding:8px 14px;background:var(--bg3)}
+#content-editor code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:12px}
+#content-editor hr{border:none;border-top:1px solid var(--border);margin:16px 0}
 
 /* Scrollbar */
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -1698,17 +1699,24 @@ function updateScore(){
   const kw=document.getElementById('kw').value;
   const title=document.getElementById('title').value;
   const meta=document.getElementById('meta').value;
-  const content=getEditorText();
-  const words=content.trim()?content.trim().split(/\s+/).length:0;
-  const h2=(content.match(/^#{2}\s/gm)||[]).length;
-  const ilinks=(content.match(/\[.+?\]\(https?:\/\//g)||[]).length;
+  const editorEl=document.getElementById('content-editor');
+  const contentText=editorEl.innerText||'';
+  const contentHtml=editorEl.innerHTML||'';
+
+  // Đếm từ từ text thuần
+  const words=contentText.trim()?contentText.trim().split(/\s+/).filter(w=>w).length:0;
+  // Đếm H2 từ HTML
+  const h2=(contentHtml.match(/<h2[^>]*>/gi)||[]).length;
+  // Đếm internal link từ HTML
+  const ilinks=(contentHtml.match(/<a\s[^>]*href="https?:\/\//gi)||[]).length;
 
   document.getElementById('word-count').textContent=words.toLocaleString();
   document.getElementById('h2-count').textContent=h2;
   document.getElementById('il-count').textContent=ilinks;
   document.getElementById('meta-len').textContent=meta.length;
 
-  const d={kw,title,meta,content,words,h2,ilinks};
+  // Truyền đúng data vào scoreRules: text thuần để check keyword density, html để check h2/links
+  const d={kw,title,meta,content:contentText,contentHtml,words,h2,ilinks};
   let total=0;
   const items=scoreRules.map(r=>{
     const pts=r.check(d);total+=pts;
@@ -1737,103 +1745,89 @@ function updateScore(){
     </div>`).join('');
 }
 
-// ─── Markdown → HTML converter (improved) ───
+// ─── Markdown → HTML converter (clean, no inline styles) ───
 function markdownToHtml(md){
-  if(!md) return '';
+  if(!md)return'';
   const lines=md.split('\n');
   let html='';
   let i=0;
-
   while(i<lines.length){
     const line=lines[i];
+    const trimmed=line.trim();
 
     // Bảng
-    if(/^\|.+\|$/.test(line.trim()) && i+1<lines.length && /^\|[\s\-\|:]+\|$/.test(lines[i+1].trim())){
-      let tableHtml='<table style="width:100%;border-collapse:collapse;margin:16px 0">';
-      const headers=line.split('|').filter((_,ci)=>ci>0&&ci<line.split('|').length-1).map(h=>h.trim());
-      tableHtml+='<tr>'+headers.map(h=>`<th style="background:var(--bg3);padding:8px 12px;border:1px solid var(--border);text-align:left;font-weight:600">${h}</th>`).join('')+'</tr>';
-      i+=2; // skip header + separator
-      while(i<lines.length && /^\|.+\|$/.test(lines[i].trim())){
-        const cells=lines[i].split('|').filter((_,ci)=>ci>0&&ci<lines[i].split('|').length-1).map(c=>c.trim());
-        tableHtml+='<tr>'+cells.map(c=>`<td style="padding:8px 12px;border:1px solid var(--border)">${inlineFormat(c)}</td>`).join('')+'</tr>';
+    if(/^\|.+\|$/.test(trimmed)&&i+1<lines.length&&/^\|[\s\-\|:]+\|$/.test(lines[i+1].trim())){
+      let t='<table><tbody>';
+      const headers=trimmed.split('|').slice(1,-1).map(h=>h.trim());
+      t+='<tr>'+headers.map(h=>`<th>${inlineFormat(h)}</th>`).join('')+'</tr>';
+      i+=2;
+      while(i<lines.length&&/^\|.+\|$/.test(lines[i].trim())){
+        const cells=lines[i].trim().split('|').slice(1,-1).map(c=>c.trim());
+        t+='<tr>'+cells.map(c=>`<td>${inlineFormat(c)}</td>`).join('')+'</tr>';
         i++;
       }
-      tableHtml+='</table>';
-      html+=tableHtml;
+      html+=t+'</tbody></table>\n';
       continue;
     }
 
     // Headings
-    if(/^#{1,6}\s/.test(line)){
-      const m=line.match(/^(#{1,6})\s+(.*)/);
-      const level=m[1].length;
-      const text=inlineFormat(m[2]);
-      const styles={
-        1:'font-size:22px;font-weight:700;margin:24px 0 10px',
-        2:'font-size:18px;font-weight:600;margin:20px 0 8px;border-bottom:2px solid #6c63ff;padding-bottom:4px',
-        3:'font-size:15px;font-weight:600;margin:16px 0 6px',
-        4:'font-size:14px;font-weight:600;margin:12px 0 4px',
-      };
-      html+=`<h${level} style="${styles[level]||''}">${text}</h${level}>`;
+    const hm=trimmed.match(/^(#{1,6})\s+(.*)/);
+    if(hm){
+      html+=`<h${hm[1].length}>${inlineFormat(hm[2])}</h${hm[1].length}>\n`;
       i++;continue;
     }
 
     // Unordered list
-    if(/^[-*+]\s/.test(line)){
-      html+='<ul style="margin:10px 0;padding-left:22px">';
-      while(i<lines.length && /^[-*+]\s/.test(lines[i])){
-        html+=`<li style="margin:4px 0">${inlineFormat(lines[i].replace(/^[-*+]\s/,''))}</li>`;
+    if(/^[-*+]\s/.test(trimmed)){
+      html+='<ul>\n';
+      while(i<lines.length&&/^[-*+]\s/.test(lines[i].trim())){
+        html+=`<li>${inlineFormat(lines[i].trim().replace(/^[-*+]\s/,''))}</li>\n`;
         i++;
       }
-      html+='</ul>';
+      html+='</ul>\n';
       continue;
     }
 
     // Ordered list
-    if(/^\d+\.\s/.test(line)){
-      html+='<ol style="margin:10px 0;padding-left:22px">';
-      while(i<lines.length && /^\d+\.\s/.test(lines[i])){
-        html+=`<li style="margin:4px 0">${inlineFormat(lines[i].replace(/^\d+\.\s/,''))}</li>`;
+    if(/^\d+\.\s/.test(trimmed)){
+      html+='<ol>\n';
+      while(i<lines.length&&/^\d+\.\s/.test(lines[i].trim())){
+        html+=`<li>${inlineFormat(lines[i].trim().replace(/^\d+\.\s/,''))}</li>\n`;
         i++;
       }
-      html+='</ol>';
+      html+='</ol>\n';
       continue;
     }
 
     // Blockquote
-    if(/^>\s/.test(line)){
-      html+=`<blockquote style="border-left:4px solid #6c63ff;margin:12px 0;padding:8px 16px;background:rgba(108,99,255,0.08);color:inherit">${inlineFormat(line.replace(/^>\s/,''))}</blockquote>`;
+    if(/^>\s/.test(trimmed)){
+      html+=`<blockquote>${inlineFormat(trimmed.replace(/^>\s/,''))}</blockquote>\n`;
       i++;continue;
     }
 
     // HR
-    if(/^---+$/.test(line.trim())){
-      html+='<hr style="border:none;border-top:1px solid #2e3350;margin:20px 0">';
-      i++;continue;
-    }
+    if(/^---+$/.test(trimmed)){html+='<hr>\n';i++;continue;}
 
     // Empty line
-    if(line.trim()===''){
-      i++;continue;
-    }
+    if(trimmed===''){i++;continue;}
 
     // Paragraph
-    html+=`<p style="margin:8px 0;line-height:1.8">${inlineFormat(line)}</p>`;
+    html+=`<p>${inlineFormat(trimmed)}</p>\n`;
     i++;
   }
-
-  return html;
+  return html.trim();
 }
 
 function inlineFormat(text){
+  if(!text)return'';
   return text
     .replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>')
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,'<em>$1</em>')
     .replace(/__(.+?)__/g,'<strong>$1</strong>')
     .replace(/_(.+?)_/g,'<em>$1</em>')
-    .replace(/`(.+?)`/g,'<code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;font-size:12px">$1</code>')
-    .replace(/\[(.+?)\]\((https?:\/\/[^\)]+)\)/g,'<a href="$2" style="color:#8b83ff">$1</a>');
+    .replace(/`(.+?)`/g,'<code>$1</code>')
+    .replace(/\[(.+?)\]\((https?:\/\/[^\)]+)\)/g,'<a href="$2">$1</a>');
 }
 
 // ─── Publish ───
@@ -1841,11 +1835,12 @@ async function publishPost(status){
   const site=S.currentSite;
   if(!site){toast('Chọn website trước','error');return;}
   const title=document.getElementById('title').value.trim();
-  const rawContent=getEditorText().trim();
+  const rawContent=getEditorContent().trim();
   if(!title||!rawContent){toast('Cần có tiêu đề và nội dung','error');return;}
-  const content=markdownToHtml(rawContent);
+  const content=rawContent;
   toast(status==='publish'?'Đang đăng bài...':'Đang lưu nháp...');
   try{
+    const creds=safeBase64(site.user+':'+site.pass);
     const r=await fetch(site.url+'/wp-json/wp/v2/posts',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Basic '+creds},
@@ -1860,22 +1855,34 @@ async function publishPost(status){
 }
 
 function previewHtml(){
-  const raw=getEditorText().trim();
+  const html=getEditorContent().trim();
   const title=document.getElementById('title').value.trim();
-  if(!raw){toast('Chưa có nội dung','error');return;}
-  const html=markdownToHtml(raw);
+  if(!html){toast('Chưa có nội dung','error');return;}
   const win=window.open('','_blank');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  win.document.write(`<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8">
     <title>${title||'Preview'}</title>
-    <style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.7;color:#333}
-    h1,h2,h3{color:#222;margin-top:28px}h2{border-bottom:2px solid #6c63ff;padding-bottom:6px}
-    table{width:100%;border-collapse:collapse;margin:16px 0}
-    th,td{padding:8px 12px;border:1px solid #ddd;text-align:left}th{background:#f0f0f0}
-    ul,ol{padding-left:24px}li{margin:4px 0}
-    strong{color:#222}a{color:#6c63ff}
-    blockquote{border-left:4px solid #6c63ff;margin:12px 0;padding:8px 16px;background:#f8f8ff}
-    </style></head><body>
-    <h1>${title}</h1>${html}</body></html>`);
+    <style>
+      body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.7;color:#333}
+      h1{font-size:28px;font-weight:700;margin:0 0 24px}
+      h2{font-size:20px;font-weight:600;margin:32px 0 12px;border-bottom:2px solid #6c63ff;padding-bottom:6px}
+      h3{font-size:17px;font-weight:600;margin:24px 0 8px}
+      h4{font-size:15px;font-weight:600;margin:16px 0 6px}
+      p{margin:10px 0}
+      ul,ol{padding-left:24px;margin:10px 0}
+      li{margin:5px 0}
+      table{width:100%;border-collapse:collapse;margin:16px 0}
+      th{background:#f3f4f6;padding:10px 12px;border:1px solid #ddd;text-align:left;font-weight:600}
+      td{padding:10px 12px;border:1px solid #ddd}
+      blockquote{border-left:4px solid #6c63ff;margin:16px 0;padding:10px 16px;background:#f8f7ff;color:#555}
+      strong{font-weight:700}
+      a{color:#6c63ff}
+      code{background:#f3f4f6;padding:2px 6px;border-radius:3px;font-size:13px}
+      hr{border:none;border-top:1px solid #e5e7eb;margin:24px 0}
+    </style>
+    </head><body>
+    <h1>${title}</h1>
+    ${html}
+    </body></html>`);
   win.document.close();
 }
 
@@ -1886,9 +1893,11 @@ function saveLocal(){
 }
 
 function savePostRecord({status,url}){
-  const content=getEditorText();
-  const words=content.trim().split(/\s+/).filter(w=>w).length;
-  const ilinks=(content.match(/\[.+?\]\(https?:\/\//g)||[]).length;
+  const editorEl=document.getElementById('content-editor');
+  const contentText=editorEl.innerText||'';
+  const contentHtml=editorEl.innerHTML||'';
+  const words=contentText.trim().split(/\s+/).filter(w=>w).length;
+  const ilinks=(contentHtml.match(/<a\s[^>]*href="https?:\/\//gi)||[]).length;
   const score=parseInt(document.getElementById('score-num').textContent)||0;
   S.posts.unshift({
     id:Date.now().toString(),
