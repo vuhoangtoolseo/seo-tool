@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Writer Pro</title>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3350;
+  --text:#e8eaf0;--text2:#9ba3c0;--text3:#6b7399;
+  --accent:#6c63ff;--accent2:#8b83ff;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
+  --radius:10px;--radius-sm:6px;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;min-height:100vh}
+
+/* Layout */
+.shell{display:grid;grid-template-columns:220px 1fr;grid-template-rows:52px 1fr;height:100vh;overflow:hidden}
+.topbar{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px}
+.logo{font-size:16px;font-weight:700;color:var(--accent2);letter-spacing:-0.3px}
+.logo span{color:var(--text2);font-weight:400}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.main{overflow:hidden;display:flex;flex-direction:column}
+
+/* Nav */
+.nav-section{padding:12px 10px 4px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:var(--radius-sm);margin:1px 6px;cursor:pointer;color:var(--text2);transition:all .15s}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--accent);color:#fff}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.badge{margin-left:auto;background:var(--bg3);color:var(--text2);font-size:11px;padding:1px 7px;border-radius:20px}
+.nav-item.active .badge{background:rgba(255,255,255,.2);color:#fff}
+
+/* Panels */
+.panel{display:none;flex:1;overflow-y:auto;padding:20px;height:100%}
+.panel.active{display:block}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title svg{width:15px;height:15px;color:var(--accent2);flex-shrink:0}
+
+/* Forms */
+label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;margin-top:12px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:8px 11px;font-size:13px;font-family:inherit;transition:border-color .15s;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical}
+select option{background:var(--bg2)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-green{background:#16a34a;color:#fff}
+.btn-green:hover{background:#15803d}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent2)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--border)}
+.btn-danger:hover{border-color:var(--red)}
+.btn-sm{padding:6px 11px;font-size:12px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+/* Write layout: 3 columns */
+.write-layout{display:grid;grid-template-columns:300px 1fr 280px;gap:16px;height:calc(100vh - 52px - 40px);overflow:hidden}
+.write-col{overflow-y:auto;padding-right:4px}
+
+/* Score */
+.score-ring{position:relative;width:80px;height:80px;flex-shrink:0}
+.score-ring svg{transform:rotate(-90deg)}
+.score-val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;font-weight:700}
+.score-val small{font-size:10px;font-weight:400;color:var(--text2)}
+.score-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.score-item:last-child{border-bottom:none}
+.score-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green)}.dot-yellow{background:var(--yellow)}.dot-red{background:var(--red)}
+
+/* Pills */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-green{background:#16a34a22;color:#4ade80}
+.pill-yellow{background:#d9770622;color:#fbbf24}
+.pill-red{background:#dc262622;color:#f87171}
+.pill-blue{background:#2563eb22;color:#60a5fa}
+.pill-purple{background:#7c3aed22;color:#a78bfa}
+
+/* Alert */
+.alert{border-radius:var(--radius-sm);padding:10px 13px;font-size:12px;margin-bottom:12px;border:1px solid;line-height:1.6}
+.alert-info{background:#1e3a5f;border-color:#2563eb44;color:#93c5fd}
+.alert-success{background:#14532d;border-color:#16a34a44;color:#86efac}
+.alert-warn{background:#451a03;border-color:#d9770644;color:#fcd34d}
+
+/* Spinner */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Steps */
+.step-bar{display:flex;gap:0;margin-bottom:16px}
+.step{flex:1;text-align:center;font-size:11px;padding:8px 4px;border-bottom:2px solid var(--border);color:var(--text3);cursor:default}
+.step.active{color:var(--accent2);border-color:var(--accent2);font-weight:600}
+.step.done{color:var(--green);border-color:var(--green)}
+
+/* Outline preview */
+.outline-item{background:var(--bg3);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:6px;font-size:12px;line-height:1.6;border-left:3px solid var(--accent)}
+.outline-h2{font-weight:600;color:var(--text);margin-bottom:3px}
+.outline-h3{color:var(--text2);margin-left:12px}
+
+/* Link suggestion */
+.link-item{background:var(--bg3);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:8px}
+.link-item .lk-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px}
+.link-item .lk-url{font-size:11px;color:var(--accent2);word-break:break-all}
+.link-item .lk-anchor{font-size:12px;margin-top:4px}
+.link-item .lk-ctx{font-size:11px;color:var(--text3);margin-top:4px;font-style:italic;border-left:2px solid var(--border);padding-left:7px}
+
+/* Word count bar */
+.wc-bar{display:flex;gap:14px;padding:8px 12px;background:var(--bg3);border-radius:var(--radius-sm);font-size:11px;color:var(--text2);margin-top:8px;flex-wrap:wrap}
+.wc-bar strong{color:var(--text)}
+
+/* Content editor */
+#content-editor{min-height:400px;font-size:13px;line-height:1.8;white-space:pre-wrap}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--bg3);color:var(--text2);font-weight:600;padding:9px 11px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:8px 11px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:hover td{background:var(--bg3)}
+
+/* Stat */
+.stat{background:var(--bg3);border-radius:var(--radius-sm);padding:14px;text-align:center}
+.stat .val{font-size:26px;font-weight:700;color:var(--accent2)}
+.stat .lbl{font-size:11px;color:var(--text3);margin-top:3px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* Section header */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.section-header h2{font-size:16px;font-weight:600}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+
+/* Toast */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 16px;font-size:13px;z-index:9998;transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.success{border-color:var(--green);color:#4ade80}
+#toast.error{border-color:var(--red);color:#f87171}
+
+/* Lock */
+#lockscreen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
+#lockscreen.hidden{display:none}
+.lock-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px 36px;width:360px;text-align:center}
+.lock-logo{font-size:22px;font-weight:700;color:var(--accent2);margin-bottom:6px}
+.lock-sub{font-size:12px;color:var(--text3);margin-bottom:28px}
+.lock-card input{text-align:center;font-size:18px;letter-spacing:4px;padding:12px;margin-bottom:12px}
+.lock-card input::placeholder{letter-spacing:1px;font-size:13px}
+.lock-err{color:var(--red);font-size:12px;min-height:18px;margin-bottom:10px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.shake{animation:shake .35s ease}
+
+/* Streaming cursor */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.cursor::after{content:'|';animation:blink .8s infinite;color:var(--accent2)}
+</style>
+</head>
+<body>
+
+<!-- Lock screen -->
+<div id="lockscreen">
+  <div class="lock-card">
+    <div class="lock-logo">SEO Writer Pro</div>
+    <div class="lock-sub">Nhập mật khẩu để truy cập</div>
+    <input id="lock-input" type="password" placeholder="Nhập mật khẩu..." onkeydown="if(event.key==='Enter')doUnlock()">
+    <div class="lock-err" id="lock-err"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doUnlock()">Đăng nhập</button>
+    <div style="font-size:11px;color:var(--text3);margin-top:10px" id="lock-attempts"></div>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="logo">SEO Writer <span>Pro</span></div>
+    <select id="site-selector" style="width:220px;padding:6px 10px;font-size:12px" onchange="onSiteChange()">
+      <option value="">-- Chọn website --</option>
+    </select>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <div id="gd-topbar" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--text3)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;color:var(--green)"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span id="gd-topbar-label">Drive</span>
+        <button class="btn btn-secondary btn-sm" onclick="gdSaveAll()" style="padding:4px 8px;font-size:11px">Lưu</button>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="showPanel('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Cài đặt
+      </button>
+      <button class="btn btn-secondary btn-sm" id="btn-logout" onclick="doLogout()" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Khóa
+      </button>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div style="padding:8px 0">
+      <div class="nav-section">Viết bài</div>
+      <div class="nav-item active" onclick="showPanel('write')" id="nav-write">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Viết bài mới
+      </div>
+      <div class="nav-item" onclick="showPanel('rewrite')" id="nav-rewrite">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+        Viết lại bài có sẵn
+      </div>
+      <div class="nav-section">Quản lý</div>
+      <div class="nav-item" onclick="showPanel('manage')" id="nav-manage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Quản lý bài viết
+        <span class="badge" id="badge-count">0</span>
+      </div>
+      <div class="nav-section">Hệ thống</div>
+      <div class="nav-item" onclick="showPanel('settings')" id="nav-settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Cài đặt & Website
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- ═══ PANEL: VIẾT BÀI MỚI ═══ -->
+    <div class="panel active" id="panel-write">
+      <div class="write-layout">
+
+        <!-- COL 1: Cấu hình -->
+        <div class="write-col" id="col-config">
+
+          <!-- Bước 1: Thông tin -->
+          <div class="card" id="card-step1">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Bước 1 — Thông tin bài viết
+            </div>
+            <label>Từ khóa chính *</label>
+            <input id="kw" placeholder="vd: motor điện 3 pha">
+            <label>Số từ mục tiêu</label>
+            <input id="ai-words" type="number" value="1200" min="300" max="5000">
+            <label>Giọng văn</label>
+            <select id="ai-tone">
+              <option value="chuyên nghiệp, B2B">Chuyên nghiệp / B2B</option>
+              <option value="thân thiện, dễ hiểu">Thân thiện / Dễ hiểu</option>
+              <option value="kỹ thuật, chuyên sâu">Kỹ thuật / Chuyên sâu</option>
+              <option value="tư vấn, hướng dẫn">Tư vấn / Hướng dẫn</option>
+            </select>
+            <label>Ghi chú thêm (tùy chọn)</label>
+            <textarea id="ai-note" rows="2" placeholder="vd: tập trung ứng dụng ngành dệt may, tránh đề cập đối thủ X..."></textarea>
+            <label>
+              <span style="display:flex;align-items:center;gap:8px">
+                Dàn ý tùy chỉnh
+                <span style="font-size:11px;color:var(--text3)">(để trống → AI tự tạo)</span>
+              </span>
+            </label>
+            <textarea id="custom-outline" rows="4" placeholder="## H2 đầu tiên&#10;### H3 con&#10;## H2 thứ hai&#10;..."></textarea>
+            <div class="btn-group">
+              <button class="btn btn-primary" onclick="startOutline()" id="btn-start">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Tạo dàn ý
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="resetWrite()">Làm mới</button>
+            </div>
+          </div>
+
+          <!-- Bước 2: Dàn ý preview -->
+          <div class="card" id="card-outline" style="display:none">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              Bước 2 — Duyệt dàn ý
+            </div>
+            <div id="outline-preview"></div>
+            <div class="btn-group">
+              <button class="btn btn-primary" onclick="startWrite()" id="btn-write">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Viết bài theo dàn ý này
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="regenOutline()">Tạo lại dàn ý</button>
+            </div>
+          </div>
+
+          <!-- Bước 3: Đăng bài -->
+          <div class="card" id="card-publish" style="display:none">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Bước 3 — Xuất bản
+            </div>
+            <div id="no-site-warn" class="alert alert-warn" style="display:none">Chưa chọn website.</div>
+            <label>Danh mục (Category ID)</label>
+            <input id="cat-id" type="number" value="1">
+            <label>Tags (cách nhau dấu phẩy)</label>
+            <input id="tags-input" placeholder="motor điện, thiết bị điện">
+            <div class="btn-group">
+              <button class="btn btn-green" onclick="publishPost('publish')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Đăng ngay
+              </button>
+              <button class="btn btn-secondary" onclick="publishPost('draft')">Lưu nháp</button>
+              <button class="btn btn-secondary" onclick="saveLocal()">Lưu local</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- COL 2: Nội dung bài viết -->
+        <div class="write-col" id="col-editor">
+          <div class="card" style="height:100%;display:flex;flex-direction:column;margin-bottom:0">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <div class="card-title" style="margin-bottom:0;flex:1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Nội dung bài viết
+              </div>
+              <div id="write-status" style="font-size:12px;color:var(--text3)"></div>
+            </div>
+            <label style="margin-top:0">Tiêu đề bài viết (H1)</label>
+            <input id="title" placeholder="AI sẽ tự điền sau khi viết xong..." oninput="updateScore()">
+            <label>Meta description</label>
+            <textarea id="meta" rows="2" placeholder="AI sẽ tự điền..." oninput="updateScore()"></textarea>
+            <label>Nội dung</label>
+            <textarea id="content-editor" style="flex:1;min-height:320px;font-size:13px;line-height:1.8" placeholder="Nội dung bài viết sẽ xuất hiện ở đây sau khi AI viết xong..." oninput="updateScore()"></textarea>
+            <div class="wc-bar">
+              <span>Từ: <strong id="word-count">0</strong></span>
+              <span>H2: <strong id="h2-count">0</strong></span>
+              <span>Link nội bộ: <strong id="il-count">0</strong></span>
+              <span>Ký tự meta: <strong id="meta-len">0</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- COL 3: SEO Score + Internal Links -->
+        <div class="write-col" id="col-sidebar">
+
+          <!-- SEO Score -->
+          <div class="card">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Điểm SEO Onpage
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+              <div class="score-ring">
+                <svg viewBox="0 0 80 80" width="80" height="80">
+                  <circle cx="40" cy="40" r="33" fill="none" stroke="#2e3350" stroke-width="6"/>
+                  <circle id="score-arc" cx="40" cy="40" r="33" fill="none" stroke="#6c63ff" stroke-width="6"
+                    stroke-linecap="round" stroke-dasharray="207" stroke-dashoffset="207"
+                    style="transition:stroke-dashoffset .6s,stroke .4s"/>
+                </svg>
+                <div class="score-val"><span id="score-num">0</span><small>/100</small></div>
+              </div>
+              <div style="flex:1">
+                <div id="score-grade" style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px">Chưa có nội dung</div>
+                <div id="score-tip" style="font-size:11px;color:var(--text3);line-height:1.5"></div>
+              </div>
+            </div>
+            <div id="score-items"></div>
+          </div>
+
+          <!-- Internal links -->
+          <div class="card">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Gợi ý Internal Link
+            </div>
+            <div id="il-no-site" class="alert alert-warn" style="font-size:12px;display:none">Chọn website ở góc trên.</div>
+            <div id="il-ready">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <span id="il-status" style="font-size:11px;color:var(--text3)">Chưa tải bài</span>
+                <button class="btn btn-secondary btn-sm" onclick="fetchWpPosts()" id="btn-fetch-wp">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+                  Tải bài WP
+                </button>
+              </div>
+              <div id="link-suggestions"></div>
+              <div id="il-loading" style="display:none;font-size:11px;color:var(--text3);padding:8px 0">
+                <span class="spin" style="border-top-color:var(--accent2);border-color:var(--border)"></span>
+                Đang phân tích link...
+              </div>
+            </div>
+          </div>
+
+          <!-- Image suggestions -->
+          <div class="card" id="card-images" style="display:none">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Gợi ý Hình ảnh
+            </div>
+
+            <!-- Vị trí chèn ảnh -->
+            <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Vị trí nên chèn ảnh</div>
+            <div id="img-positions"></div>
+
+            <!-- Từ khóa tìm ảnh -->
+            <div style="font-size:11px;font-weight:600;color:var(--text2);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.5px">Từ khóa tìm ảnh (tiếng Anh)</div>
+            <div id="img-keywords"></div>
+
+            <!-- Nguồn ảnh miễn phí -->
+            <div style="font-size:11px;font-weight:600;color:var(--text2);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.5px">Tải ảnh miễn phí tại</div>
+            <div style="display:flex;flex-direction:column;gap:5px" id="img-sources">
+              <a id="link-unsplash" href="#" target="_blank" style="font-size:12px;color:var(--accent2);text-decoration:none;display:flex;align-items:center;gap:5px;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-sm)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;flex-shrink:0"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Unsplash (ảnh đẹp, miễn phí)
+              </a>
+              <a id="link-pexels" href="#" target="_blank" style="font-size:12px;color:var(--accent2);text-decoration:none;display:flex;align-items:center;gap:5px;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-sm)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;flex-shrink:0"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Pexels (ảnh kỹ thuật/công nghiệp)
+              </a>
+              <a id="link-pixabay" href="#" target="_blank" style="font-size:12px;color:var(--accent2);text-decoration:none;display:flex;align-items:center;gap:5px;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-sm)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;flex-shrink:0"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Pixabay (miễn phí thương mại)
+              </a>
+            </div>
+
+            <!-- Checklist alt text -->
+            <div class="alert alert-info" style="margin-top:12px;font-size:11px;line-height:1.7">
+              <strong>Checklist khi upload ảnh lên WP:</strong><br>
+              <span id="img-checklist"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PANEL: VIẾT LẠI ═══ -->
+    <div class="panel" id="panel-rewrite">
+      <div class="grid2" style="gap:20px">
+        <div>
+          <div class="card">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+              Viết lại bài có sẵn
+            </div>
+            <label>Dán nội dung bài gốc vào đây</label>
+            <textarea id="rewrite-input" rows="10" placeholder="Dán toàn bộ nội dung bài viết cũ vào đây..."></textarea>
+            <label>Từ khóa muốn tối ưu</label>
+            <input id="rewrite-kw" placeholder="vd: motor điện 3 pha">
+            <label>Yêu cầu viết lại</label>
+            <textarea id="rewrite-note" rows="2" placeholder="vd: tăng mật độ từ khóa, cải thiện cấu trúc H2, thêm số liệu thực tế..."></textarea>
+            <label>Giọng văn</label>
+            <select id="rewrite-tone">
+              <option value="chuyên nghiệp, B2B">Chuyên nghiệp / B2B</option>
+              <option value="thân thiện, dễ hiểu">Thân thiện / Dễ hiểu</option>
+              <option value="kỹ thuật, chuyên sâu">Kỹ thuật / Chuyên sâu</option>
+              <option value="tư vấn, hướng dẫn">Tư vấn / Hướng dẫn</option>
+            </select>
+            <div class="btn-group">
+              <button class="btn btn-primary" onclick="doRewrite()" id="btn-rewrite">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+                Viết lại bài
+              </button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="height:100%">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+              Kết quả
+            </div>
+            <div id="rewrite-status" style="font-size:12px;color:var(--text3);margin-bottom:8px"></div>
+            <textarea id="rewrite-output" rows="18" placeholder="Nội dung viết lại sẽ hiện ở đây..." style="font-size:13px;line-height:1.8"></textarea>
+            <div class="btn-group" id="rewrite-actions" style="display:none">
+              <button class="btn btn-secondary btn-sm" onclick="copyRewrite()">Sao chép</button>
+              <button class="btn btn-secondary btn-sm" onclick="sendToEditor()">Chuyển sang editor</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PANEL: QUẢN LÝ ═══ -->
+    <div class="panel" id="panel-manage">
+      <div class="section-header">
+        <h2>Quản lý bài viết</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input id="search-posts" placeholder="Tìm kiếm..." style="width:170px;padding:6px 10px;font-size:12px" oninput="renderPostsTable()">
+          <select id="filter-site" style="width:150px;padding:6px 10px;font-size:12px" onchange="renderPostsTable()">
+            <option value="">Tất cả website</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" onclick="exportCSV()">Xuất CSV</button>
+          <button class="btn btn-secondary btn-sm" onclick="exportExcel()">Xuất Excel</button>
+        </div>
+      </div>
+      <div class="grid3" style="margin-bottom:14px">
+        <div class="stat"><div class="val" id="stat-total">0</div><div class="lbl">Tổng bài</div></div>
+        <div class="stat"><div class="val" id="stat-pub">0</div><div class="lbl">Đã đăng</div></div>
+        <div class="stat"><div class="val" id="stat-draft">0</div><div class="lbl">Bản nháp / Local</div></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>Tiêu đề</th><th>Website</th><th>Từ khóa</th>
+              <th>Số từ</th><th>SEO</th><th>Trạng thái</th><th>Ngày</th><th></th>
+            </tr></thead>
+            <tbody id="posts-tbody">
+              <tr><td colspan="8" style="text-align:center;color:var(--text3);padding:30px">Chưa có bài viết nào</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PANEL: CÀI ĐẶT ═══ -->
+    <div class="panel" id="panel-settings">
+      <div class="section-header"><h2>Cài đặt hệ thống</h2></div>
+      <div class="grid2" style="gap:20px">
+        <div>
+          <div class="card">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              API Key Claude
+            </div>
+            <div class="alert alert-info">Lấy tại <strong>console.anthropic.com</strong> → API Keys</div>
+            <label>API Key</label>
+            <input id="api-key" type="password" placeholder="sk-ant-api...">
+            <div class="btn-group">
+              <button class="btn btn-primary btn-sm" onclick="saveApiKey()">Lưu</button>
+              <button class="btn btn-secondary btn-sm" onclick="testApiKey()">Kiểm tra kết nối</button>
+            </div>
+          </div>
+
+          <!-- Google Drive Sync -->
+          <div class="card">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              Đồng bộ Google Drive
+            </div>
+            <div id="gd-status-bar" style="margin-bottom:10px"></div>
+            <label>Google Client ID</label>
+            <input id="gd-client-id" placeholder="xxxx.apps.googleusercontent.com">
+            <div class="btn-group">
+              <button class="btn btn-primary btn-sm" onclick="gdSaveClientId()">Lưu Client ID</button>
+              <button class="btn btn-secondary btn-sm" onclick="gdLogin()" id="btn-gd-login">Đăng nhập Google</button>
+              <button class="btn btn-danger btn-sm" onclick="gdLogout()" id="btn-gd-logout" style="display:none">Đăng xuất</button>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap" id="gd-sync-btns" style="display:none">
+              <button class="btn btn-green btn-sm" onclick="gdSaveAll()" id="btn-gd-save">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Lưu lên Drive
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="gdLoadAll()" id="btn-gd-load">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+                Tải từ Drive
+              </button>
+            </div>
+            <div id="gd-sync-info" style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.6"></div>
+            <div class="alert alert-info" style="margin-top:12px;font-size:11px;line-height:1.6">
+              Dữ liệu lưu vào file <strong>seo-writer-data.json</strong> trên Google Drive của bạn.<br>
+              Mở app ở máy nào → Tải từ Drive → dữ liệu đồng bộ ngay.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Bảo mật — Mật khẩu truy cập
+            </div>
+            <div id="pw-status-bar"></div>
+            <label>Mật khẩu mới</label>
+            <input id="pw-new" type="password" placeholder="Tối thiểu 6 ký tự">
+            <label>Xác nhận</label>
+            <input id="pw-confirm" type="password" placeholder="Nhập lại">
+            <div class="btn-group">
+              <button class="btn btn-primary btn-sm" onclick="savePassword()">Lưu mật khẩu</button>
+              <button class="btn btn-danger btn-sm" onclick="removePassword()">Xóa mật khẩu</button>
+            </div>
+            <div class="alert alert-info" style="margin-top:12px;font-size:11px">Quên mật khẩu: F12 → Console → gõ <code style="background:var(--bg3);padding:1px 5px;border-radius:3px">localStorage.clear()</code> → Enter → refresh</div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              Thêm Website WordPress
+            </div>
+            <label>Tên website</label>
+            <input id="site-name" placeholder="vd: Mikaza">
+            <label>URL (không có / cuối)</label>
+            <input id="site-url" placeholder="https://mikaza.vn">
+            <label>Username WordPress</label>
+            <input id="wp-user" placeholder="admin">
+            <label>Application Password</label>
+            <input id="wp-pass" type="password" placeholder="xxxx xxxx xxxx xxxx xxxx xxxx">
+            <div class="alert alert-info" style="margin-top:10px;font-size:11px">WP Dashboard → Users → Profile → Application Passwords</div>
+            <div class="btn-group">
+              <button class="btn btn-primary btn-sm" onclick="addSite()">Thêm website</button>
+              <button class="btn btn-secondary btn-sm" onclick="testSiteConn()">Kiểm tra kết nối</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              Website đã thêm
+            </div>
+            <div id="sites-list"><div style="color:var(--text3);font-size:12px">Chưa có website nào</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main -->
+</div>
+
+<div id="toast"></div>
+
+<script>
+const LS={
+  get(k,d=null){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set(k,v){localStorage.setItem(k,JSON.stringify(v))},
+};
+
+let S={
+  sites:LS.get('seo_sites',[]),
+  posts:LS.get('seo_posts',[]),
+  apiKey:LS.get('seo_api_key',''),
+  currentSite:null,
+  wpPosts:[],
+  outline:'',
+};
+
+// ─── Google Drive Sync ───
+const GD_FILE_NAME='seo-writer-data.json';
+const GD_SCOPE='https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file';
+let gdToken=null;
+let gdFileId=LS.get('gd_file_id',null);
+let gdClientId=LS.get('gd_client_id','');
+
+function gdSaveClientId(){
+  const id=document.getElementById('gd-client-id').value.trim();
+  if(!id){toast('Nhập Client ID','error');return;}
+  gdClientId=id;
+  LS.set('gd_client_id',id);
+  toast('Đã lưu Client ID');
+  renderGdStatus();
+}
+
+function gdLogin(){
+  if(!gdClientId){toast('Nhập Client ID trước','error');return;}
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:gdClientId,
+    scope:GD_SCOPE,
+    callback:(resp)=>{
+      if(resp.error){toast('Đăng nhập thất bại: '+resp.error,'error');return;}
+      gdToken=resp.access_token;
+      LS.set('gd_token_ts',Date.now());
+      toast('Đăng nhập Google thành công!');
+      renderGdStatus();
+      // Auto load sau khi login
+      gdLoadAll(true);
+    }
+  });
+  client.requestAccessToken();
+}
+
+function gdLogout(){
+  if(gdToken) google.accounts.oauth2.revoke(gdToken);
+  gdToken=null;
+  LS.set('gd_token_ts',0);
+  toast('Đã đăng xuất Google');
+  renderGdStatus();
+}
+
+function renderGdStatus(){
+  const bar=document.getElementById('gd-status-bar');
+  const cidInput=document.getElementById('gd-client-id');
+  const syncBtns=document.getElementById('gd-sync-btns');
+  const topbar=document.getElementById('gd-topbar');
+  const loginBtn=document.getElementById('btn-gd-login');
+  const logoutBtn=document.getElementById('btn-gd-logout');
+  if(cidInput&&gdClientId) cidInput.value=gdClientId;
+  if(gdToken){
+    if(bar) bar.innerHTML='<div class="alert alert-success" style="margin-bottom:10px">Đã kết nối Google Drive</div>';
+    if(syncBtns) syncBtns.style.display='flex';
+    if(topbar) topbar.style.display='flex';
+    if(loginBtn) loginBtn.style.display='none';
+    if(logoutBtn) logoutBtn.style.display='inline-flex';
+  } else {
+    if(bar) bar.innerHTML=gdClientId
+      ?'<div class="alert alert-warn" style="margin-bottom:10px">Chưa đăng nhập Google — bấm "Đăng nhập Google"</div>'
+      :'<div class="alert alert-warn" style="margin-bottom:10px">Nhập Client ID rồi đăng nhập để bật đồng bộ</div>';
+    if(syncBtns) syncBtns.style.display='none';
+    if(topbar) topbar.style.display='none';
+    if(loginBtn) loginBtn.style.display='inline-flex';
+    if(logoutBtn) logoutBtn.style.display='none';
+  }
+}
+
+async function gdFindFile(){
+  if(!gdToken) return null;
+  const r=await fetch(
+    "https://www.googleapis.com/drive/v3/files?spaces=drive&q=name='"+GD_FILE_NAME+"' and trashed=false&fields=files(id,name,modifiedTime)",
+    {headers:{Authorization:'Bearer '+gdToken}}
+  );
+  if(!r.ok) return null;
+  const data=await r.json();
+  return data.files?.[0]||null;
+}
+
+async function gdSaveAll(){
+  if(!gdToken){toast('Đăng nhập Google trước','error');return;}
+  const btn=document.getElementById('btn-gd-save');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang lưu...';}
+  try{
+    const payload=JSON.stringify({
+      sites:S.sites,
+      posts:S.posts,
+      apiKey:S.apiKey,
+      savedAt:new Date().toISOString(),
+    });
+    const blob=new Blob([payload],{type:'application/json'});
+    let url,method;
+    const existing=await gdFindFile();
+    if(existing){
+      url=`https://www.googleapis.com/upload/drive/v3/files/${existing.id}?uploadType=media`;
+      method='PATCH';
+      gdFileId=existing.id;
+    } else {
+      // Tạo file mới với metadata
+      const meta=new Blob([JSON.stringify({name:GD_FILE_NAME})],{type:'application/json'});
+      const form=new FormData();
+      form.append('metadata',meta);
+      form.append('file',blob);
+      const cr=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{
+        method:'POST',headers:{Authorization:'Bearer '+gdToken},body:form
+      });
+      if(!cr.ok)throw new Error('Tạo file thất bại');
+      const cd=await cr.json();
+      gdFileId=cd.id;
+      LS.set('gd_file_id',gdFileId);
+      const info=document.getElementById('gd-sync-info');
+      if(info) info.textContent='Lưu thành công lúc '+new Date().toLocaleTimeString('vi-VN');
+      document.getElementById('gd-topbar-label').textContent='Drive ✓';
+      toast('Đã lưu lên Google Drive!');
+      return;
+    }
+    const r=await fetch(url,{method,headers:{Authorization:'Bearer '+gdToken,'Content-Type':'application/json'},body:payload});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    LS.set('gd_file_id',gdFileId);
+    const info=document.getElementById('gd-sync-info');
+    if(info) info.textContent='Lưu thành công lúc '+new Date().toLocaleTimeString('vi-VN');
+    document.getElementById('gd-topbar-label').textContent='Drive ✓';
+    toast('Đã lưu lên Google Drive!');
+  }catch(e){
+    toast('Lỗi lưu Drive: '+e.message,'error');
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Lưu lên Drive';}
+  }
+}
+
+async function gdLoadAll(silent=false){
+  if(!gdToken){if(!silent)toast('Đăng nhập Google trước','error');return;}
+  const btn=document.getElementById('btn-gd-load');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang tải...';}
+  try{
+    const file=await gdFindFile();
+    if(!file){
+      if(!silent)toast('Chưa có file trên Drive — hãy lưu trước','error');
+      return;
+    }
+    gdFileId=file.id;
+    const r=await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`,{
+      headers:{Authorization:'Bearer '+gdToken}
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    // Merge data
+    if(data.sites) S.sites=data.sites;
+    if(data.posts) S.posts=data.posts;
+    if(data.apiKey){S.apiKey=data.apiKey;LS.set('seo_api_key',data.apiKey);document.getElementById('api-key').value=data.apiKey;}
+    LS.set('seo_sites',S.sites);
+    LS.set('seo_posts',S.posts);
+    refreshSiteSelector();
+    renderSitesList();
+    renderPostsTable();
+    updateBadge();
+    const savedAt=data.savedAt?new Date(data.savedAt).toLocaleString('vi-VN'):'';
+    const info=document.getElementById('gd-sync-info');
+    if(info) info.textContent='Tải thành công — lưu lần cuối: '+savedAt;
+    document.getElementById('gd-topbar-label').textContent='Drive ✓';
+    if(!silent) toast('Đã tải dữ liệu từ Google Drive!');
+  }catch(e){
+    if(!silent)toast('Lỗi tải Drive: '+e.message,'error');
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Tải từ Drive';}
+  }
+}
+
+// Auto-save lên Drive sau mỗi thay đổi quan trọng
+function gdAutoSave(){
+  if(gdToken) setTimeout(gdSaveAll,1000);
+}
+
+// ─── Init ───
+function init(){
+  if(S.apiKey) document.getElementById('api-key').value=S.apiKey;
+  refreshSiteSelector();
+  renderSitesList();
+  renderPostsTable();
+  updateBadge();
+  updateScore();
+  renderPwStatus();
+  renderGdStatus();
+  checkLockScreen();
+}
+
+function showPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.getElementById('nav-'+name)?.classList.add('active');
+  if(name==='manage'){renderPostsTable();renderFilterSites();}
+}
+
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='show '+(type||'');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.className='',3200);
+}
+
+// ─── Sites ───
+function addSite(){
+  const name=document.getElementById('site-name').value.trim();
+  const url=document.getElementById('site-url').value.trim().replace(/\/$/,'');
+  const user=document.getElementById('wp-user').value.trim();
+  const pass=document.getElementById('wp-pass').value.trim();
+  if(!name||!url||!user||!pass){toast('Điền đầy đủ thông tin','error');return;}
+  S.sites.push({id:Date.now().toString(),name,url,user,pass});
+  LS.set('seo_sites',S.sites);
+  refreshSiteSelector();renderSitesList();
+  ['site-name','site-url','wp-user','wp-pass'].forEach(id=>document.getElementById(id).value='');
+  toast('Đã thêm '+name);
+  gdAutoSave();
+}
+
+function removeSite(id){
+  if(!confirm('Xóa website này?'))return;
+  S.sites=S.sites.filter(s=>s.id!==id);
+  LS.set('seo_sites',S.sites);
+  refreshSiteSelector();renderSitesList();
+}
+
+function refreshSiteSelector(){
+  const sel=document.getElementById('site-selector');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- Chọn website --</option>';
+  S.sites.forEach(s=>{
+    const o=document.createElement('option');
+    o.value=s.id;o.textContent=s.name+' ('+s.url+')';
+    sel.appendChild(o);
+  });
+  if(cur)sel.value=cur;
+  onSiteChange();
+}
+
+function onSiteChange(){
+  const id=document.getElementById('site-selector').value;
+  S.currentSite=S.sites.find(s=>s.id===id)||null;
+  const warn=document.getElementById('no-site-warn');
+  if(warn)warn.style.display=S.currentSite?'none':'block';
+  const ilNoSite=document.getElementById('il-no-site');
+  const ilReady=document.getElementById('il-ready');
+  if(ilNoSite&&ilReady){
+    ilNoSite.style.display=S.currentSite?'none':'block';
+    ilReady.style.display=S.currentSite?'block':'none';
+  }
+  S.wpPosts=[];
+  document.getElementById('il-status').textContent='Chưa tải bài';
+  document.getElementById('link-suggestions').innerHTML='';
+}
+
+function renderSitesList(){
+  const el=document.getElementById('sites-list');
+  if(!S.sites.length){el.innerHTML='<div style="color:var(--text3);font-size:12px">Chưa có website nào</div>';return;}
+  el.innerHTML=S.sites.map(s=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${s.name}</div><div style="font-size:11px;color:var(--text3)">${s.url}</div></div>
+      <span class="pill pill-green">OK</span>
+      <button class="btn btn-danger btn-sm" onclick="removeSite('${s.id}')">Xóa</button>
+    </div>`).join('');
+}
+
+async function testSiteConn(){
+  const url=document.getElementById('site-url').value.trim().replace(/\/$/,'');
+  const user=document.getElementById('wp-user').value.trim();
+  const pass=document.getElementById('wp-pass').value.trim();
+  if(!url||!user||!pass){toast('Điền đầy đủ','error');return;}
+  toast('Đang kiểm tra...');
+  try{
+    const r=await fetch(url+'/wp-json/wp/v2/posts?per_page=1',{headers:{Authorization:'Basic '+btoa(user+':'+pass)}});
+    r.ok?toast('Kết nối thành công!'):toast('Lỗi HTTP '+r.status,'error');
+  }catch(e){toast('Không kết nối được: '+e.message,'error');}
+}
+
+// ─── API Key ───
+function saveApiKey(){
+  const k=document.getElementById('api-key').value.trim();
+  if(!k){toast('Nhập API key','error');return;}
+  S.apiKey=k;LS.set('seo_api_key',k);toast('Đã lưu API key');
+}
+async function testApiKey(){
+  if(!S.apiKey){toast('Nhập API key trước','error');return;}
+  toast('Đang kiểm tra...');
+  try{const r=await callClaude('Trả lời 1 từ: OK','Bạn là trợ lý.',50);toast('Kết nối OK: '+r.substring(0,15));}
+  catch(e){toast('Lỗi: '+e.message,'error');}
+}
+
+// ─── Claude API ───
+async function callClaude(userMsg,sysMsg,maxTokens=3000){
+  if(!S.apiKey)throw new Error('Chưa có API key. Vào Cài đặt.');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system:sysMsg,messages:[{role:'user',content:userMsg}]})
+  });
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error '+r.status);}
+  return (await r.json()).content[0].text;
+}
+
+// ─── BƯỚC 1: Tạo dàn ý ───
+async function startOutline(){
+  const kw=document.getElementById('kw').value.trim();
+  if(!kw){toast('Nhập từ khóa chính trước','error');return;}
+  if(!S.apiKey){toast('Cần API key. Vào Cài đặt','error');return;}
+  const customOutline=document.getElementById('custom-outline').value.trim();
+  const btn=document.getElementById('btn-start');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang tạo dàn ý...';
+  try{
+    let outline='';
+    if(customOutline){
+      outline=customOutline;
+    } else {
+      const words=document.getElementById('ai-words').value||1200;
+      const tone=document.getElementById('ai-tone').value;
+      const note=document.getElementById('ai-note').value;
+      const prompt=`Tạo dàn ý chi tiết cho bài viết SEO tiếng Việt.
+
+Từ khóa: ${kw}
+Số từ mục tiêu: ${words}
+Giọng văn: ${tone}
+${note?'Ghi chú: '+note:''}
+
+Yêu cầu:
+- Nghiên cứu ý định tìm kiếm của từ khóa này
+- Tạo cấu trúc H2/H3 logic, bao phủ đầy đủ chủ đề
+- Mỗi H2 có 2-3 H3 con nếu cần
+- Bao gồm gợi ý nội dung ngắn cho mỗi section
+- Định dạng:
+## [Tiêu đề H2]
+- Nội dung gợi ý ngắn
+### [Tiêu đề H3] (nếu cần)
+- Nội dung gợi ý ngắn
+
+Chỉ trả về dàn ý, không có lời giải thích.`;
+      outline=await callClaude(prompt,'Bạn là chuyên gia SEO content tiếng Việt.',1500);
+    }
+    S.outline=outline;
+    renderOutlinePreview(outline);
+    document.getElementById('card-outline').style.display='block';
+    document.getElementById('card-outline').scrollIntoView({behavior:'smooth'});
+    toast('Dàn ý đã sẵn sàng — hãy kiểm tra và duyệt');
+  }catch(e){toast('Lỗi: '+e.message,'error');}
+  finally{btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Tạo dàn ý';}
+}
+
+function renderOutlinePreview(outline){
+  const lines=outline.split('\n').filter(l=>l.trim());
+  let html='';
+  lines.forEach(line=>{
+    if(line.startsWith('## ')){
+      html+=`<div class="outline-item"><div class="outline-h2">${line.replace('## ','')}</div>`;
+    } else if(line.startsWith('### ')){
+      html+=`<div class="outline-h3">↳ ${line.replace('### ','')}</div>`;
+    } else if(line.startsWith('- ')){
+      html+=`<div style="font-size:11px;color:var(--text3);margin-left:12px;margin-top:2px">${line}</div>`;
+    }
+  });
+  document.getElementById('outline-preview').innerHTML=html||`<pre style="font-size:12px;color:var(--text2);white-space:pre-wrap">${outline}</pre>`;
+}
+
+async function regenOutline(){
+  document.getElementById('custom-outline').value='';
+  document.getElementById('card-outline').style.display='none';
+  await startOutline();
+}
+
+// ─── BƯỚC 2: Viết bài ───
+async function startWrite(){
+  const kw=document.getElementById('kw').value.trim();
+  const words=document.getElementById('ai-words').value||1200;
+  const tone=document.getElementById('ai-tone').value;
+  const note=document.getElementById('ai-note').value;
+  const btn=document.getElementById('btn-write');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang viết...';
+  document.getElementById('write-status').textContent='';
+  document.getElementById('content-editor').value='';
+  document.getElementById('title').value='';
+  document.getElementById('meta').value='';
+  document.getElementById('card-publish').style.display='none';
+
+  // Song song: fetch WP posts nếu có site
+  if(S.currentSite&&!S.wpPosts.length){
+    fetchWpPosts(true);
+  }
+
+  try{
+    const prompt=`Viết bài viết SEO hoàn chỉnh bằng tiếng Việt theo dàn ý sau.
+
+Từ khóa chính: ${kw}
+Số từ: khoảng ${words} từ
+Giọng văn: ${tone}
+${note?'Ghi chú: '+note:''}
+
+DÀN Ý:
+${S.outline}
+
+Yêu cầu bài viết:
+- Đoạn mở đầu hấp dẫn, có từ khóa trong 100 từ đầu
+- Dùng ## cho H2, ### cho H3 đúng theo dàn ý
+- Mật độ từ khóa 1-2%, tự nhiên
+- Có danh sách bullet/numbered khi phù hợp
+- Có bảng so sánh nếu phù hợp với chủ đề
+- Kết bài có CTA rõ ràng
+- Văn phong ${tone}, không robot
+
+Chỉ trả về nội dung bài viết (markdown), không có lời giải thích.`;
+
+    document.getElementById('write-status').innerHTML='<span class="spin" style="border-top-color:var(--accent2);border-color:var(--border)"></span> Đang viết bài...';
+
+    const content=await callClaude(prompt,'Bạn là chuyên gia content SEO tiếng Việt chuyên nghiệp.',5000);
+    document.getElementById('content-editor').value=content;
+    updateScore();
+
+    // Sinh tiêu đề + meta
+    document.getElementById('write-status').textContent='Đang tạo tiêu đề & meta...';
+    const metaPrompt=`Dựa trên bài viết về "${kw}" sau đây, hãy tạo:
+1. Tiêu đề SEO (H1): 50-65 ký tự, có từ khóa, hấp dẫn
+2. Meta description: 140-160 ký tự, có từ khóa, kêu gọi click
+
+Bài viết (500 ký tự đầu):
+${content.substring(0,500)}
+
+Trả về JSON: {"title":"...","meta":"..."}
+Chỉ JSON, không có text khác.`;
+    const metaResp=await callClaude(metaPrompt,'Chỉ trả về JSON hợp lệ.',300);
+    try{
+      const md=JSON.parse(metaResp.replace(/```json|```/g,'').trim());
+      document.getElementById('title').value=md.title||'';
+      document.getElementById('meta').value=md.meta||'';
+    }catch{}
+    updateScore();
+
+    // Gợi ý link nếu đã có WP posts
+    if(S.wpPosts.length){
+      suggestLinksAuto(content,kw);
+    }
+
+    // Gợi ý hình ảnh (chạy song song)
+    suggestImages(content,kw);
+
+    document.getElementById('write-status').innerHTML='<span style="color:var(--green)">Hoàn thành!</span>';
+    document.getElementById('card-publish').style.display='block';
+    toast('Bài viết đã sẵn sàng — kiểm tra rồi xuất bản!');
+  }catch(e){
+    toast('Lỗi: '+e.message,'error');
+    document.getElementById('write-status').textContent='';
+  }finally{
+    btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Viết bài theo dàn ý này';
+  }
+}
+
+// ─── WP API ───
+async function fetchWpPosts(silent=false){
+  const site=S.currentSite;
+  if(!site){if(!silent)toast('Chọn website trước','error');return;}
+  const btn=document.getElementById('btn-fetch-wp');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  const status=document.getElementById('il-status');
+  status.textContent='Đang tải...';
+  try{
+    const creds=btoa(site.user+':'+site.pass);
+    let page=1,all=[],hasMore=true;
+    while(hasMore&&page<=10){
+      const r=await fetch(site.url+'/wp-json/wp/v2/posts?per_page=100&page='+page+'&status=publish&_fields=id,title,link,excerpt',{headers:{Authorization:'Basic '+creds}});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const data=await r.json();
+      if(!data.length){hasMore=false;break;}
+      all=all.concat(data.map(p=>({
+        title:p.title?.rendered?.replace(/<[^>]+>/g,'')||'',
+        url:p.link,
+        excerpt:p.excerpt?.rendered?.replace(/<[^>]+>/g,'').substring(0,150)||''
+      })));
+      if(page>=parseInt(r.headers.get('X-WP-TotalPages')||'1'))hasMore=false;
+      page++;
+    }
+    S.wpPosts=all;
+    status.textContent=`${all.length} bài đã tải`;
+    if(!silent)toast(`Đã tải ${all.length} bài từ ${site.name}`);
+    // Nếu editor đang có nội dung, gợi ý link ngay
+    const content=document.getElementById('content-editor').value;
+    const kw=document.getElementById('kw').value;
+    if(content&&kw)suggestLinksAuto(content,kw);
+  }catch(e){
+    status.textContent='Lỗi tải';
+    if(!silent)toast('Lỗi: '+e.message,'error');
+  }finally{
+    btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Tải lại';
+  }
+}
+
+async function suggestLinksAuto(content,kw){
+  if(!S.wpPosts.length||!S.apiKey)return;
+  const loadEl=document.getElementById('il-loading');
+  if(loadEl)loadEl.style.display='flex';
+  const postList=S.wpPosts.slice(0,80).map((p,i)=>`${i+1}. ${p.title}\n   URL: ${p.url}\n   Tóm tắt: ${p.excerpt}`).join('\n\n');
+  const prompt=`Bạn là chuyên gia SEO. Gợi ý 4-5 internal link cho bài viết sau.
+
+BÀI ĐANG VIẾT - Từ khóa: ${kw}
+Nội dung (500 ký tự đầu): ${content.substring(0,500)}
+
+DANH SÁCH BÀI TRÊN WEBSITE:
+${postList}
+
+Chỉ gợi ý bài liên quan thật sự. anchor_text tự nhiên 2-5 từ. context là đoạn trong bài đang viết phù hợp chèn link (~10 từ).
+Trả về JSON: [{"url":"...","title":"...","anchor_text":"...","reason":"...","context":"..."}]`;
+  try{
+    const resp=await callClaude(prompt,'Chỉ trả về JSON hợp lệ.',800);
+    const data=JSON.parse(resp.replace(/```json|```/g,'').trim());
+    const el=document.getElementById('link-suggestions');
+    el.innerHTML=data.map(d=>`
+      <div class="link-item">
+        <div class="lk-title">${d.title||''}</div>
+        <div class="lk-url">${d.url}</div>
+        <div class="lk-anchor">Anchor: <strong style="color:var(--accent2)">${d.anchor_text}</strong></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${d.reason}</div>
+        <div class="lk-ctx">"${d.context}"</div>
+      </div>`).join('');
+  }catch(e){
+    document.getElementById('link-suggestions').innerHTML='<div style="font-size:11px;color:var(--text3)">Không gợi ý được link</div>';
+  }finally{
+    if(loadEl)loadEl.style.display='none';
+  }
+}
+
+// ─── Image suggestions ───
+async function suggestImages(content, kw){
+  if(!S.apiKey||!content||!kw) return;
+  const card=document.getElementById('card-images');
+  card.style.display='block';
+  document.getElementById('img-positions').innerHTML='<span style="font-size:11px;color:var(--text3)">Đang phân tích...</span>';
+  document.getElementById('img-keywords').innerHTML='';
+
+  const prompt=`Phân tích bài viết SEO về "${kw}" và trả về JSON với các thông tin sau:
+
+1. positions: Mảng 3-5 vị trí nên chèn ảnh trong bài, mỗi vị trí gồm:
+   - location: tên section/H2 nên chèn ảnh (trích nguyên văn tiêu đề H2 từ bài)
+   - description: mô tả ngắn ảnh nên chụp/tìm gì (tiếng Việt, 1 câu)
+
+2. keywords_en: Mảng 4-6 từ khóa tiếng Anh để tìm ảnh stock phù hợp (cụ thể, dễ tìm trên Unsplash/Pexels)
+
+3. alt_template: Mẫu alt text tiếng Việt có chứa từ khóa chính (dùng [mô tả] làm placeholder)
+
+Bài viết (600 ký tự đầu):
+${content.substring(0,600)}
+
+CHỈ trả về JSON hợp lệ, không có text khác:
+{"positions":[{"location":"...","description":"..."}],"keywords_en":["..."],"alt_template":"..."}`;
+
+  try{
+    const resp=await callClaude(prompt,'Chỉ trả về JSON hợp lệ.',600);
+    const data=JSON.parse(resp.replace(/```json|```/g,'').trim());
+
+    // Vị trí chèn ảnh
+    const posEl=document.getElementById('img-positions');
+    posEl.innerHTML=(data.positions||[]).map((p,i)=>`
+      <div style="display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border)">
+        <div style="background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:1px">Ảnh ${i+1}</div>
+        <div>
+          <div style="font-size:11px;font-weight:500;color:var(--text)">${p.location||''}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${p.description||''}</div>
+        </div>
+      </div>`).join('');
+
+    // Từ khóa tìm ảnh
+    const kwEl=document.getElementById('img-keywords');
+    const kwList=(data.keywords_en||[]);
+    kwEl.innerHTML=kwList.map(k=>`
+      <span onclick="copyKw(this,'${k.replace(/'/g,"\\'")}','${encodeURIComponent(k)}')"
+        style="display:inline-flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:11px;padding:4px 9px;border-radius:20px;margin:2px;cursor:pointer;transition:all .15s"
+        onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent2)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+        ${k}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px;flex-shrink:0"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </span>`).join('');
+
+    // Cập nhật link tìm ảnh với từ khóa đầu tiên
+    const firstKw=kwList[0]||kw;
+    const enc=encodeURIComponent(firstKw);
+    document.getElementById('link-unsplash').href=`https://unsplash.com/s/photos/${enc}`;
+    document.getElementById('link-pexels').href=`https://www.pexels.com/search/${enc}/`;
+    document.getElementById('link-pixabay').href=`https://pixabay.com/images/search/${enc}/`;
+
+    // Checklist alt text
+    const altTpl=data.alt_template||`[Mô tả ảnh] - ${kw}`;
+    document.getElementById('img-checklist').innerHTML=
+      `— Tên file: dùng từ khóa, viết thường, cách nhau bằng dấu gạch ngang<br>
+       — Alt text mẫu: <strong style="color:var(--accent2)">${altTpl}</strong><br>
+       — Nén ảnh về dưới 200KB trước khi upload<br>
+       — Dùng định dạng WebP hoặc JPG`;
+
+  }catch(e){
+    document.getElementById('img-positions').innerHTML=`<div style="font-size:11px;color:var(--text3)">Không phân tích được</div>`;
+  }
+}
+
+function copyKw(el, kw, enc){
+  navigator.clipboard.writeText(kw).then(()=>{
+    const orig=el.innerHTML;
+    el.innerHTML=kw+' ✓';
+    el.style.borderColor='var(--green)';el.style.color='#4ade80';
+    setTimeout(()=>{el.innerHTML=orig;el.style.borderColor='var(--border)';el.style.color='var(--text2)';},1500);
+  });
+}
+
+// ─── SEO Score ───
+const scoreRules=[
+  {label:'Từ khóa trong tiêu đề H1',max:12,check:d=>d.kw&&d.title.toLowerCase().includes(d.kw.toLowerCase())?12:0,tip:'Thêm từ khóa vào tiêu đề'},
+  {label:'Độ dài tiêu đề (50-65 ký tự)',max:8,check:d=>{const l=d.title.length;return l>=50&&l<=65?8:l>=40&&l<75?4:0},tip:'Tiêu đề nên 50-65 ký tự'},
+  {label:'Từ khóa trong meta description',max:8,check:d=>d.kw&&d.meta.toLowerCase().includes(d.kw.toLowerCase())?8:0,tip:'Thêm từ khóa vào meta'},
+  {label:'Độ dài meta (130-160 ký tự)',max:7,check:d=>{const l=d.meta.length;return l>=130&&l<=160?7:l>=100?4:0},tip:'Meta nên 130-160 ký tự'},
+  {label:'Độ dài bài (>= 800 từ)',max:15,check:d=>d.words>=1200?15:d.words>=800?10:d.words>=500?5:0,tip:'Bài nên ít nhất 800 từ'},
+  {label:'Có ít nhất 2 thẻ H2',max:10,check:d=>d.h2>=3?10:d.h2>=2?8:d.h2===1?4:0,tip:'Thêm ít nhất 2 thẻ H2'},
+  {label:'Từ khóa trong nội dung (1-3%)',max:12,check:d=>{if(!d.kw||!d.content)return 0;const n=(d.content.toLowerCase().match(new RegExp(d.kw.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'))||[]).length;const pct=n/(Math.max(d.words,1)/100);return pct>=1&&pct<=3?12:pct>0.5?7:pct>0?3:0},tip:'Mật độ từ khóa nên 1-3%'},
+  {label:'Internal link (>= 2)',max:10,check:d=>d.ilinks>=3?10:d.ilinks>=2?8:d.ilinks===1?4:0,tip:'Thêm ít nhất 2 link nội bộ'},
+  {label:'Meta description đã điền',max:8,check:d=>d.meta.length>50?8:d.meta.length>0?4:0,tip:'Điền meta description'},
+  {label:'Tiêu đề H1 đã điền',max:10,check:d=>d.title.length>=30?10:d.title.length>0?5:0,tip:'Điền tiêu đề bài viết'},
+];
+
+function updateScore(){
+  const kw=document.getElementById('kw').value;
+  const title=document.getElementById('title').value;
+  const meta=document.getElementById('meta').value;
+  const content=document.getElementById('content-editor').value;
+  const words=content.trim()?content.trim().split(/\s+/).length:0;
+  const h2=(content.match(/^#{2}\s/gm)||[]).length;
+  const ilinks=(content.match(/\[.+?\]\(https?:\/\//g)||[]).length;
+
+  document.getElementById('word-count').textContent=words.toLocaleString();
+  document.getElementById('h2-count').textContent=h2;
+  document.getElementById('il-count').textContent=ilinks;
+  document.getElementById('meta-len').textContent=meta.length;
+
+  const d={kw,title,meta,content,words,h2,ilinks};
+  let total=0;
+  const items=scoreRules.map(r=>{
+    const pts=r.check(d);total+=pts;
+    const pct=pts/r.max;
+    return{label:r.label,pts,max:r.max,cls:pct>=1?'dot-green':pct>=.5?'dot-yellow':'dot-red',pass:pct>=1,tip:r.tip};
+  });
+
+  const score=Math.round(total);
+  document.getElementById('score-num').textContent=score;
+  const arc=document.getElementById('score-arc');
+  arc.style.strokeDashoffset=207-(207*score/100);
+  arc.style.stroke=score>=80?'#22c55e':score>=60?'#f59e0b':'#ef4444';
+
+  const grade=document.getElementById('score-grade');
+  if(score>=80){grade.textContent='Tốt — Sẵn sàng đăng';grade.style.color='#22c55e';}
+  else if(score>=60){grade.textContent='Khá — Cần cải thiện';grade.style.color='#f59e0b';}
+  else{grade.textContent='Yếu — Cần tối ưu nhiều';grade.style.color='#ef4444';}
+
+  const fails=items.filter(i=>!i.pass);
+  document.getElementById('score-tip').textContent=fails.length?'Cải thiện: '+fails.slice(0,2).map(f=>f.tip).join(' • '):'';
+  document.getElementById('score-items').innerHTML=items.map(i=>`
+    <div class="score-item">
+      <div class="score-dot ${i.cls}"></div>
+      <div style="flex:1;font-size:11px">${i.label}</div>
+      <div style="font-size:11px;color:var(--text2)">${i.pts}/${i.max}</div>
+    </div>`).join('');
+}
+
+// ─── Publish ───
+async function publishPost(status){
+  const site=S.currentSite;
+  if(!site){toast('Chọn website trước','error');return;}
+  const title=document.getElementById('title').value.trim();
+  const content=document.getElementById('content-editor').value.trim();
+  if(!title||!content){toast('Cần có tiêu đề và nội dung','error');return;}
+  toast(status==='publish'?'Đang đăng bài...':'Đang lưu nháp...');
+  try{
+    const creds=btoa(site.user+':'+site.pass);
+    const r=await fetch(site.url+'/wp-json/wp/v2/posts',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Basic '+creds},
+      body:JSON.stringify({title,content,status,categories:[parseInt(document.getElementById('cat-id').value)||1]})
+    });
+    if(!r.ok){const e=await r.json();throw new Error(e.message||'HTTP '+r.status);}
+    const post=await r.json();
+    savePostRecord({status,url:post.link||''});
+    toast(status==='publish'?'Đã đăng bài thành công!':'Đã lưu nháp!');
+    resetWrite();
+  }catch(e){toast('Lỗi: '+e.message,'error');}
+}
+
+function saveLocal(){
+  const title=document.getElementById('title').value.trim()||'(chưa có tiêu đề)';
+  savePostRecord({status:'local',url:''});
+  toast('Đã lưu local');
+}
+
+function savePostRecord({status,url}){
+  const content=document.getElementById('content-editor').value;
+  const words=content.trim().split(/\s+/).filter(w=>w).length;
+  const ilinks=(content.match(/\[.+?\]\(https?:\/\//g)||[]).length;
+  const score=parseInt(document.getElementById('score-num').textContent)||0;
+  S.posts.unshift({
+    id:Date.now().toString(),
+    siteId:S.currentSite?.id||'',
+    siteName:S.currentSite?.name||'Local',
+    title:document.getElementById('title').value,
+    keyword:document.getElementById('kw').value,
+    words,ilinks,score,status,url,
+    date:new Date().toLocaleDateString('vi-VN'),
+  });
+  if(S.posts.length>500)S.posts=S.posts.slice(0,500);
+  LS.set('seo_posts',S.posts);
+  updateBadge();
+  gdAutoSave();
+}
+
+function updateBadge(){document.getElementById('badge-count').textContent=S.posts.length;}
+
+function resetWrite(){
+  ['kw','title','meta','content-editor','ai-note','custom-outline'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('ai-words').value='1200';
+  document.getElementById('card-outline').style.display='none';
+  document.getElementById('card-publish').style.display='none';
+  document.getElementById('write-status').textContent='';
+  document.getElementById('link-suggestions').innerHTML='';
+  S.outline='';
+  updateScore();
+}
+
+// ─── Viết lại ───
+async function doRewrite(){
+  const input=document.getElementById('rewrite-input').value.trim();
+  const kw=document.getElementById('rewrite-kw').value.trim();
+  if(!input){toast('Dán nội dung bài gốc vào trước','error');return;}
+  if(!S.apiKey){toast('Cần API key','error');return;}
+  const btn=document.getElementById('btn-rewrite');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang viết lại...';
+  document.getElementById('rewrite-status').textContent='Đang xử lý...';
+  document.getElementById('rewrite-actions').style.display='none';
+  const tone=document.getElementById('rewrite-tone').value;
+  const note=document.getElementById('rewrite-note').value;
+  const prompt=`Viết lại bài viết SEO tiếng Việt sau đây.
+
+${kw?'Từ khóa tối ưu: '+kw:''}
+Giọng văn: ${tone}
+${note?'Yêu cầu: '+note:''}
+
+BÀI GỐC:
+${input.substring(0,4000)}
+
+Yêu cầu:
+- Giữ nguyên thông tin và cấu trúc chính
+- Cải thiện văn phong, tăng tính hấp dẫn
+- ${kw?'Tối ưu mật độ từ khóa "'+kw+'" 1-2%':'Cải thiện chất lượng nội dung'}
+- Thêm/cải thiện H2, H3 nếu cần
+- Viết lại đoạn mở và kết hấp dẫn hơn
+
+Chỉ trả về nội dung bài viết đã viết lại.`;
+  try{
+    const resp=await callClaude(prompt,'Bạn là chuyên gia content SEO tiếng Việt.',5000);
+    document.getElementById('rewrite-output').value=resp;
+    document.getElementById('rewrite-status').innerHTML='<span style="color:var(--green)">Hoàn thành!</span>';
+    document.getElementById('rewrite-actions').style.display='flex';
+    toast('Viết lại xong!');
+  }catch(e){
+    toast('Lỗi: '+e.message,'error');
+    document.getElementById('rewrite-status').textContent='Lỗi: '+e.message;
+  }finally{
+    btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Viết lại bài';
+  }
+}
+
+function copyRewrite(){
+  navigator.clipboard.writeText(document.getElementById('rewrite-output').value);
+  toast('Đã sao chép!');
+}
+
+function sendToEditor(){
+  const content=document.getElementById('rewrite-output').value;
+  document.getElementById('content-editor').value=content;
+  document.getElementById('kw').value=document.getElementById('rewrite-kw').value;
+  showPanel('write');
+  updateScore();
+  toast('Đã chuyển sang editor');
+}
+
+// ─── Manage ───
+function renderFilterSites(){
+  const sel=document.getElementById('filter-site');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Tất cả website</option>';
+  [...new Set(S.posts.map(p=>p.siteName))].forEach(n=>{
+    const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);
+  });
+  if(cur)sel.value=cur;
+}
+
+function getFilteredPosts(){
+  const q=(document.getElementById('search-posts')?.value||'').toLowerCase();
+  const site=document.getElementById('filter-site')?.value||'';
+  return S.posts.filter(p=>{
+    const mq=!q||p.title?.toLowerCase().includes(q)||(p.keyword||'').toLowerCase().includes(q);
+    const ms=!site||p.siteName===site;
+    return mq&&ms;
+  });
+}
+
+function renderPostsTable(){
+  const posts=getFilteredPosts();
+  document.getElementById('stat-total').textContent=posts.length;
+  document.getElementById('stat-pub').textContent=posts.filter(p=>p.status==='publish').length;
+  document.getElementById('stat-draft').textContent=posts.filter(p=>p.status!=='publish').length;
+  const tbody=document.getElementById('posts-tbody');
+  if(!posts.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:30px">Không có bài viết nào</td></tr>';return;}
+  tbody.innerHTML=posts.map(p=>{
+    const st=p.status==='publish'?'<span class="pill pill-green">Đã đăng</span>':p.status==='draft'?'<span class="pill pill-yellow">Nháp</span>':'<span class="pill pill-blue">Local</span>';
+    const sc=p.score>=80?'var(--green)':p.score>=60?'var(--yellow)':'var(--red)';
+    return`<tr>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.title||''}">${p.title||'—'}</td>
+      <td><span class="pill pill-purple">${p.siteName}</span></td>
+      <td style="color:var(--text2)">${p.keyword||'—'}</td>
+      <td>${(p.words||0).toLocaleString()}</td>
+      <td style="color:${sc};font-weight:500">${p.score||'—'}</td>
+      <td>${st}</td>
+      <td style="color:var(--text3);white-space:nowrap">${p.date||'—'}</td>
+      <td><div style="display:flex;gap:5px">
+        ${p.url?`<a href="${p.url}" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none">Xem</a>`:''}
+        <button class="btn btn-danger btn-sm" onclick="deletePost('${p.id}')">Xóa</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function deletePost(id){
+  if(!confirm('Xóa bài viết này?'))return;
+  S.posts=S.posts.filter(p=>p.id!==id);
+  LS.set('seo_posts',S.posts);
+  updateBadge();renderPostsTable();
+}
+
+// ─── Export ───
+function exportCSV(){
+  const posts=getFilteredPosts();
+  if(!posts.length){toast('Không có bài để xuất','error');return;}
+  const headers=['Tiêu đề','Website','Từ khóa','Số từ','Điểm SEO','Internal Link','Trạng thái','Ngày','URL'];
+  const rows=posts.map(p=>[
+    '"'+(p.title||'').replace(/"/g,'""')+'"',
+    '"'+(p.siteName||'')+'"',
+    '"'+(p.keyword||'')+'"',
+    p.words||0,p.score||0,p.ilinks||0,
+    p.status==='publish'?'Đã đăng':p.status==='draft'?'Bản nháp':'Local',
+    '"'+(p.date||'')+'"',
+    '"'+(p.url||'')+'"',
+  ]);
+  const csv='\uFEFF'+[headers.join(','),...rows.map(r=>r.join(','))].join('\r\n');
+  downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'bai-viet-seo-'+today()+'.csv');
+  toast('Đã xuất '+posts.length+' bài ra CSV');
+}
+
+function exportExcel(){
+  const posts=getFilteredPosts();
+  if(!posts.length){toast('Không có bài để xuất','error');return;}
+  const headers=['Tiêu đề','Website','Từ khóa','Số từ','Điểm SEO','Internal Link','Trạng thái','Ngày','URL'];
+  const rows=posts.map(p=>[p.title||'',p.siteName||'',p.keyword||'',p.words||0,p.score||0,p.ilinks||0,p.status==='publish'?'Đã đăng':p.status==='draft'?'Bản nháp':'Local',p.date||'',p.url||'']);
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const col=i=>String.fromCharCode(65+i);
+  const makeRow=(vals,n)=>`<row r="${n}">${vals.map((v,i)=>typeof v==='number'?`<c r="${col(i)+n}"><v>${v}</v></c>`:`<c r="${col(i)+n}" t="inlineStr"><is><t>${esc(v)}</t></is></c>`).join('')}</row>`;
+  const sheetData=[makeRow(headers,1),...rows.map((r,i)=>makeRow(r,i+2))].join('');
+  const sheet=`<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${sheetData}</sheetData></worksheet>`;
+  const wb=`<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Bài viết SEO" sheetId="1" r:id="rId1"/></sheets></workbook>`;
+  const rels=`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`;
+  const pkgRels=`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
+  const ct=`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`;
+  packZip({'[Content_Types].xml':ct,'_rels/.rels':pkgRels,'xl/workbook.xml':wb,'xl/_rels/workbook.xml.rels':rels,'xl/worksheets/sheet1.xml':sheet}).then(blob=>{
+    downloadBlob(blob,'bai-viet-seo-'+today()+'.xlsx');
+    toast('Đã xuất '+posts.length+' bài ra Excel');
+  }).catch(()=>{toast('Lỗi Excel, xuất CSV thay thế');exportCSV();});
+}
+
+async function packZip(files){
+  const enc=new TextEncoder();
+  const parts=[],central=[];let offset=0;
+  for(const [name,content] of Object.entries(files)){
+    const nb=enc.encode(name),db=enc.encode(content);
+    const crc=crc32(db);
+    const local=new Uint8Array(30+nb.length+db.length);
+    const dv=new DataView(local.buffer);
+    dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);dv.setUint16(6,0,true);dv.setUint16(8,0,true);
+    dv.setUint16(10,0,true);dv.setUint16(12,0,true);dv.setUint32(14,crc,true);
+    dv.setUint32(18,db.length,true);dv.setUint32(22,db.length,true);dv.setUint16(26,nb.length,true);dv.setUint16(28,0,true);
+    local.set(nb,30);local.set(db,30+nb.length);
+    const cent=new Uint8Array(46+nb.length);const cdv=new DataView(cent.buffer);
+    cdv.setUint32(0,0x02014b50,true);cdv.setUint16(4,20,true);cdv.setUint16(6,20,true);
+    cdv.setUint16(8,0,true);cdv.setUint16(10,0,true);cdv.setUint16(12,0,true);cdv.setUint16(14,0,true);
+    cdv.setUint32(16,crc,true);cdv.setUint32(20,db.length,true);cdv.setUint32(24,db.length,true);
+    cdv.setUint16(28,nb.length,true);cdv.setUint16(30,0,true);cdv.setUint16(32,0,true);
+    cdv.setUint16(34,0,true);cdv.setUint16(36,0,true);cdv.setUint32(38,0,true);cdv.setUint32(42,offset,true);
+    cent.set(nb,46);parts.push(local);central.push(cent);offset+=local.length;
+  }
+  const cb=concat(central);
+  const eocd=new Uint8Array(22);const edv=new DataView(eocd.buffer);
+  edv.setUint32(0,0x06054b50,true);edv.setUint16(4,0,true);edv.setUint16(6,0,true);
+  edv.setUint16(8,central.length,true);edv.setUint16(10,central.length,true);
+  edv.setUint32(12,cb.length,true);edv.setUint32(16,offset,true);edv.setUint16(20,0,true);
+  return new Blob([concat([...parts,cb,eocd])],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function concat(arrays){const t=arrays.reduce((s,a)=>s+a.length,0);const o=new Uint8Array(t);let i=0;for(const a of arrays){o.set(a,i);i+=a.length;}return o;}
+function crc32(buf){let c=0xFFFFFFFF;for(let i=0;i<buf.length;i++){c^=buf[i];for(let k=0;k<8;k++)c=c&1?(c>>>1)^0xEDB88320:(c>>>1);}return(c^0xFFFFFFFF)>>>0;}
+function downloadBlob(blob,fn){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
+function today(){return new Date().toISOString().slice(0,10);}
+
+// ─── Password / Lock ───
+const SESSION_KEY='seo_session';
+const SESSION_TTL=8*60*60*1000;
+let failCount=0,lockUntil=0;
+
+function hashPass(p){let h=0;for(let i=0;i<p.length;i++)h=Math.imul(31,h)+p.charCodeAt(i)|0;return h.toString(36)+'_'+p.length;}
+
+function checkLockScreen(){
+  const stored=LS.get('seo_pw_hash',null);
+  if(!stored){document.getElementById('lockscreen').classList.add('hidden');return;}
+  const session=LS.get(SESSION_KEY,null);
+  if(session&&Date.now()-session.ts<SESSION_TTL){
+    document.getElementById('lockscreen').classList.add('hidden');
+    document.getElementById('btn-logout').style.display='inline-flex';
+    return;
+  }
+  document.getElementById('lockscreen').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('lock-input').focus(),100);
+}
+
+function doUnlock(){
+  const now=Date.now();
+  if(now<lockUntil){showLockErr('Thử lại sau '+Math.ceil((lockUntil-now)/1000)+' giây');return;}
+  const val=document.getElementById('lock-input').value;
+  const stored=LS.get('seo_pw_hash',null);
+  if(!stored){document.getElementById('lockscreen').classList.add('hidden');return;}
+  if(hashPass(val)===stored){
+    failCount=0;lockUntil=0;
+    LS.set(SESSION_KEY,{ts:Date.now()});
+    document.getElementById('lockscreen').classList.add('hidden');
+    document.getElementById('btn-logout').style.display='inline-flex';
+    document.getElementById('lock-input').value='';
+    document.getElementById('lock-err').textContent='';
+  } else {
+    failCount++;
+    const inp=document.getElementById('lock-input');
+    inp.classList.remove('shake');void inp.offsetWidth;inp.classList.add('shake');inp.value='';
+    if(failCount>=5){lockUntil=Date.now()+30000;failCount=0;showLockErr('Sai 5 lần — khóa 30 giây');return;}
+    showLockErr('Sai mật khẩu ('+failCount+'/5)');
+    document.getElementById('lock-attempts').textContent=(5-failCount)+' lần còn lại';
+  }
+}
+
+function showLockErr(msg){document.getElementById('lock-err').textContent=msg;}
+
+function doLogout(){
+  if(!confirm('Khóa màn hình?'))return;
+  localStorage.removeItem(SESSION_KEY);
+  document.getElementById('lockscreen').classList.remove('hidden');
+  document.getElementById('btn-logout').style.display='none';
+  document.getElementById('lock-input').value='';
+  document.getElementById('lock-err').textContent='';
+  document.getElementById('lock-attempts').textContent='';
+  setTimeout(()=>document.getElementById('lock-input').focus(),100);
+}
+
+function savePassword(){
+  const p=document.getElementById('pw-new').value;
+  const c=document.getElementById('pw-confirm').value;
+  if(p.length<6){toast('Tối thiểu 6 ký tự','error');return;}
+  if(p!==c){toast('Mật khẩu không khớp','error');return;}
+  LS.set('seo_pw_hash',hashPass(p));
+  LS.set(SESSION_KEY,{ts:Date.now()});
+  document.getElementById('pw-new').value='';document.getElementById('pw-confirm').value='';
+  document.getElementById('btn-logout').style.display='inline-flex';
+  renderPwStatus();toast('Đã lưu mật khẩu');
+}
+
+function removePassword(){
+  if(!confirm('Xóa mật khẩu?'))return;
+  localStorage.removeItem('seo_pw_hash');localStorage.removeItem(SESSION_KEY);
+  document.getElementById('btn-logout').style.display='none';
+  renderPwStatus();toast('Đã xóa mật khẩu');
+}
+
+function renderPwStatus(){
+  const el=document.getElementById('pw-status-bar');if(!el)return;
+  const has=!!LS.get('seo_pw_hash',null);
+  el.innerHTML=has
+    ?'<div class="alert alert-success" style="margin-bottom:12px">Mật khẩu đang BẬT</div>'
+    :'<div class="alert alert-warn" style="margin-bottom:12px">Chưa đặt mật khẩu</div>';
+}
+
+init();
+</script>
+</body>
+</html>
