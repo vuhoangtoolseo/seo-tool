@@ -876,11 +876,16 @@ Trả về JSON (KHÔNG có text khác):
 }`;
 
   try{
-    const resp=await callClaude(prompt,'Chỉ trả về JSON hợp lệ, không có text khác.',3000);
-    const clean=resp.replace(/```json|```/g,'').trim();
+    const resp=await callClaude(prompt,'Chỉ trả về JSON hợp lệ, không có text khác. Không dùng ký tự đặc biệt trong chuỗi JSON.',3000);
+    let clean=resp.replace(/```json|```/g,'').trim();
+    // Tìm JSON object
     const startIdx=clean.indexOf('{');
     const endIdx=clean.lastIndexOf('}');
-    stratData=JSON.parse(clean.substring(startIdx,endIdx+1));
+    if(startIdx===-1||endIdx===-1)throw new Error('Không tìm được JSON');
+    clean=clean.substring(startIdx,endIdx+1);
+    // Làm sạch ký tự có thể gây lỗi JSON
+    clean=clean.replace(/[\u0000-\u001F\u007F]/g,' ');
+    stratData=JSON.parse(clean);
 
     // Điền GSC data thực vào clusters nếu có
     if(stratGscData.length){
