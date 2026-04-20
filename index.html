@@ -1198,43 +1198,56 @@ async function suggestLinksAuto(content,kw){
   if(!S.wpPosts.length||!S.apiKey)return;
   const loadEl=document.getElementById('il-loading');
   if(loadEl)loadEl.style.display='flex';
-  const postList=S.wpPosts.slice(0,60).map((p,i)=>`${i+1}. Tiêu đề: ${p.title}\n   URL: ${p.url}`).join('\n');
-  const prompt=`Bạn là chuyên gia SEO. Gợi ý 4-5 internal link phù hợp cho bài viết.
 
-Bài đang viết:
-- Từ khóa: ${kw}
-- Nội dung (400 ký tự đầu): ${content.substring(0,400)}
+  // Gửi toàn bộ nội dung bài (tối đa 2000 ký tự) + tiêu đề + excerpt của bài cũ
+  const postList=S.wpPosts.slice(0,60).map((p,i)=>
+    `${i+1}. Tiêu đề: ${p.title}\n   URL: ${p.url}${p.excerpt?'\n   Tóm tắt: '+p.excerpt:''}`
+  ).join('\n\n');
 
-Danh sách bài trên website:
+  const prompt=`Bạn là chuyên gia SEO internal linking. Phân tích kỹ bài viết đang soạn và gợi ý internal link chính xác.
+
+BÀI ĐANG VIẾT:
+- Từ khóa chính: ${kw}
+- Nội dung đầy đủ (2000 ký tự):
+${content.substring(0,2000)}
+
+DANH SÁCH BÀI TRÊN WEBSITE:
 ${postList}
 
-Yêu cầu:
-- Chỉ chọn bài thật sự liên quan về chủ đề
-- anchor_text ngắn gọn 2-5 từ tiếng Việt tự nhiên
-- reason giải thích ngắn gọn tại sao nên gắn link này
+YÊU CẦU PHÂN TÍCH:
+1. Đọc kỹ nội dung bài đang viết để hiểu đầy đủ chủ đề, các luận điểm chính
+2. So sánh semantic với từng bài trong danh sách — không chỉ match keyword
+3. Chỉ gợi ý bài thật sự bổ sung thông tin cho người đọc, không gợi ý bài cùng chủ đề (cạnh tranh nhau)
+4. anchor_text phải là cụm từ tự nhiên trong văn cảnh, 2-5 từ tiếng Việt
+5. context là đoạn văn cụ thể trong bài đang viết nên chèn link (trích ~15 từ)
 
-Trả về JSON array (KHÔNG có text khác, KHÔNG có markdown):
+Trả về JSON array (KHÔNG có text khác):
 [{"url":"...","title":"...","anchor_text":"...","reason":"...","context":"..."}]`;
+
   try{
-    const resp=await callClaude(prompt,'Bạn chỉ trả về JSON array hợp lệ, không có bất kỳ text nào khác.',1000);
+    const resp=await callClaude(prompt,'Bạn chỉ trả về JSON array hợp lệ, không có bất kỳ text nào khác.',1200);
     const clean=resp.replace(/```json|```/g,'').trim();
     const startIdx=clean.indexOf('[');
     const endIdx=clean.lastIndexOf(']');
-    if(startIdx===-1||endIdx===-1)throw new Error('No JSON array found');
+    if(startIdx===-1||endIdx===-1)throw new Error('Không parse được JSON');
     const data=JSON.parse(clean.substring(startIdx,endIdx+1));
     const el=document.getElementById('link-suggestions');
-    if(!data.length){el.innerHTML='<div style="font-size:11px;color:var(--text3)">Không tìm thấy bài liên quan</div>';return;}
+    if(!data.length){
+      el.innerHTML='<div style="font-size:11px;color:var(--text3)">Không tìm thấy bài liên quan phù hợp</div>';
+      return;
+    }
     el.innerHTML=data.map(d=>`
       <div class="link-item">
         <div class="lk-title">${d.title||''}</div>
         <div class="lk-url">${d.url}</div>
-        <div class="lk-anchor">Anchor: <strong style="color:var(--accent2)">${d.anchor_text}</strong></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${d.reason}</div>
-        ${d.context?`<div class="lk-ctx">"${d.context}"</div>`:''}
+        <div class="lk-anchor" style="margin-top:5px">Anchor: <strong style="color:var(--accent2)">${d.anchor_text}</strong></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">${d.reason}</div>
+        ${d.context?`<div class="lk-ctx" style="margin-top:4px">"${d.context}"</div>`:''}
       </div>`).join('');
+    toast(`Đã gợi ý ${data.length} internal link!`);
   }catch(e){
     console.error('suggestLinks error:',e);
-    document.getElementById('link-suggestions').innerHTML=`<div style="font-size:11px;color:var(--red)">Lỗi gợi ý link: ${e.message}</div>`;
+    document.getElementById('link-suggestions').innerHTML=`<div style="font-size:11px;color:var(--red)">Lỗi: ${e.message}</div>`;
   }finally{
     if(loadEl)loadEl.style.display='none';
   }
