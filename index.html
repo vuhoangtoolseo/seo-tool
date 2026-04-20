@@ -827,7 +827,9 @@ function toast(msg,type='success'){
   clearTimeout(t._t);t._t=setTimeout(()=>t.className='',3200);
 }
 
-// ─── Sites ───
+function safeBase64(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
 function addSite(){
   const name=document.getElementById('site-name').value.trim();
   const url=document.getElementById('site-url').value.trim().replace(/\/$/,'');
@@ -896,7 +898,7 @@ async function testSiteConn(){
   if(!url||!user||!pass){toast('Điền đầy đủ','error');return;}
   toast('Đang kiểm tra...');
   try{
-    const r=await fetch(url+'/wp-json/wp/v2/posts?per_page=1',{headers:{Authorization:'Basic '+btoa(user+':'+pass)}});
+    const r=await fetch(url+'/wp-json/wp/v2/posts?per_page=1',{headers:{Authorization:'Basic '+safeBase64(user+':'+pass)}});
     r.ok?toast('Kết nối thành công!'):toast('Lỗi HTTP '+r.status,'error');
   }catch(e){toast('Không kết nối được: '+e.message,'error');}
 }
@@ -1087,7 +1089,7 @@ async function fetchWpPosts(silent=false){
   const status=document.getElementById('il-status');
   status.textContent='Đang tải...';
   try{
-    const creds=btoa(site.user+':'+site.pass);
+    const creds=safeBase64(site.user+':'+site.pass);
     let page=1,all=[],hasMore=true;
     while(hasMore&&page<=10){
       const r=await fetch(site.url+'/wp-json/wp/v2/posts?per_page=100&page='+page+'&status=publish&_fields=id,title,link,excerpt',{headers:{Authorization:'Basic '+creds}});
@@ -1297,7 +1299,7 @@ async function publishPost(status){
   if(!title||!content){toast('Cần có tiêu đề và nội dung','error');return;}
   toast(status==='publish'?'Đang đăng bài...':'Đang lưu nháp...');
   try{
-    const creds=btoa(site.user+':'+site.pass);
+    const creds=safeBase64(site.user+':'+site.pass);
     const r=await fetch(site.url+'/wp-json/wp/v2/posts',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Basic '+creds},
