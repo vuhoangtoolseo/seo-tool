@@ -834,11 +834,13 @@ async function runStrategy(){
 ${stratGscData.slice(0,50).map(r=>`- "${r.keys[0]}" | clicks: ${Math.round(r.clicks||0)} | impressions: ${Math.round(r.impressions||0)} | position: ${(r.position||0).toFixed(1)}`).join('\n')}`
     : 'KHÔNG CÓ GSC DATA (website mới hoặc chưa kết nối) — hãy research thuần túy dựa trên kiến thức.';
 
+  const currentYear=new Date().getFullYear();
   const prompt=`Bạn là chuyên gia chiến lược SEO Content. Phân tích và lên kế hoạch content hoàn chỉnh.
 
 CHỦ ĐỀ GỐC (PILLAR): ${topic}
 NGÀNH: ${industry||'Chưa xác định'}
 ĐỐI TƯỢNG: ${audience||'Chưa xác định'}
+NĂM HIỆN TẠI: ${currentYear} — dùng năm này trong tiêu đề nếu cần, KHÔNG dùng năm cũ hơn
 ${note?'GHI CHÚ: '+note:''}
 
 ${gscSection}
