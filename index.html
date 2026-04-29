@@ -600,13 +600,6 @@ tr:hover td{background:var(--bg3)}
               <option value="brand">Brand awareness / nhận diện thương hiệu</option>
               <option value="all">Cân bằng cả 3</option>
             </select>
-
-            <label>Giai đoạn website</label>
-            <select id="strat-stage">
-              <option value="new">Mới — dưới 20 bài (tập trung long-tail)</option>
-              <option value="growing">Đang phát triển — 20-100 bài</option>
-              <option value="established">Established — 100+ bài (đánh từ khóa cạnh tranh)</option>
-            </select>
           </div>
           <div>
             <label>Đối thủ cạnh tranh (domain, mỗi dòng 1 site)</label>
@@ -886,7 +879,6 @@ async function runStrategy(){
   const topic=document.getElementById('strat-topic').value.trim();
   const audience=document.getElementById('strat-audience').value.trim();
   const goal=document.getElementById('strat-goal').value;
-  const stage=document.getElementById('strat-stage').value;
   const competitors=document.getElementById('strat-competitors').value.trim();
   const note=document.getElementById('strat-note').value.trim();
   if(!topic){toast('Nhập chủ đề gốc trước','error');return;}
@@ -894,30 +886,36 @@ async function runStrategy(){
   const btn=document.getElementById('btn-run-strat');
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang phân tích...';
 
-  const goalMap={traffic:'tăng traffic tự nhiên (ưu tiên informational)',conversion:'tăng chuyển đổi bán hàng (ưu tiên commercial + transactional)',brand:'brand awareness (cân bằng các loại)',all:'cân bằng traffic + chuyển đổi + brand'};
-  const stageMap={new:'site mới dưới 20 bài (tập trung long-tail ít cạnh tranh, search volume vừa)',growing:'site đang phát triển 20-100 bài (mix long-tail và mid-tail)',established:'site lớn 100+ bài (có thể đánh từ khóa cạnh tranh cao hơn)'};
+  const goalMap={
+    traffic:'tăng traffic tự nhiên — ưu tiên informational (hướng dẫn, giải thích, so sánh)',
+    conversion:'tăng chuyển đổi bán hàng — ưu tiên commercial + transactional',
+    brand:'brand awareness — cân bằng các loại bài',
+    all:'cân bằng traffic + chuyển đổi + brand'
+  };
 
   const currentYear=new Date().getFullYear();
   const gscSection=stratGscData.length
     ?`GSC DATA (90 ngày):\n${stratGscData.slice(0,40).map(r=>`- "${r.keys[0]}" clicks:${Math.round(r.clicks||0)} pos:${(r.position||0).toFixed(1)}`).join('\n')}`
     :'Không có GSC data — research thuần túy.';
 
-  const prompt=`Chuyên gia SEO content strategy. Lên kế hoạch topic cluster.
+  const prompt=`Chuyên gia SEO content strategy. Lên kế hoạch topic cluster đầy đủ.
 
 CHỦ ĐỀ: ${topic}
 ĐỐI TƯỢNG: ${audience||'Chưa xác định'}
 MỤC TIÊU: ${goalMap[goal]}
-GIAI ĐOẠN SITE: ${stageMap[stage]}
 ${competitors?'ĐỐI THỦ: '+competitors:''}
 ${note?'GHI CHÚ: '+note:''}
 NĂM: ${currentYear}
 ${gscSection}
 
-YÊU CẦU:
-- 1 Pillar page (bài trụ cột toàn diện về chủ đề gốc)
-- 8-10 Cluster pages phù hợp với mục tiêu và giai đoạn site
+YÊU CẦU QUAN TRỌNG:
+- 1 Pillar page (bài trụ cột toàn diện)
+- 8-10 Cluster pages bao phủ ĐẦY ĐỦ từ long-tail đến head term
+- Tự đánh giá priority dựa trên search intent và mức độ cạnh tranh thực tế của từng từ khóa (không dựa trên giai đoạn site)
+- high: từ khóa có search volume cao hoặc conversion intent mạnh
+- medium: từ khóa mid-tail, cạnh tranh vừa
+- low: từ khóa long-tail, cạnh tranh thấp nhưng qualified traffic
 - Tỉ lệ loại bài phù hợp với mục tiêu: ${goalMap[goal]}
-- Từ khóa thực tế, không có năm trong keyword trừ khi cần thiết
 - links_to_clusters tối đa 2 ID
 
 JSON ngắn gọn (KHÔNG text khác):
