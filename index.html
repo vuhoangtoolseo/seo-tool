@@ -916,9 +916,10 @@ YÊU CẦU QUAN TRỌNG:
 - medium: từ khóa mid-tail, cạnh tranh vừa
 - low: từ khóa long-tail, cạnh tranh thấp nhưng qualified traffic
 - Tỉ lệ loại bài phù hợp với mục tiêu: ${goalMap[goal]}
-- links_to_clusters tối đa 2 ID
-
-JSON ngắn gọn (KHÔNG text khác):
+- BẮT BUỘC: Mỗi cluster phải có ít nhất 1 ID trong links_to_clusters (trừ khi không có bài nào liên quan)
+- links_to_clusters: chọn 1-2 cluster khác có chủ đề bổ sung, người đọc bài này sẽ muốn đọc thêm bài kia
+- Ví dụ: bài "cách chọn motor" nên link sang "bảng giá motor" và "hướng dẫn lắp đặt"
+- links_to_clusters tối đa 2 ID, dùng đúng id số của cluster
 {"pillar":{"title":"...","keyword":"...","type":"pillar"},"clusters":[{"id":1,"title":"...","keyword":"...","type":"informational","priority":"high","links_to_pillar":true,"links_to_clusters":[]}]}`;
 
   try{
@@ -1459,26 +1460,27 @@ async function startOutline(){
       const words=document.getElementById('ai-words').value||1200;
       const tone=document.getElementById('ai-tone').value;
       const note=document.getElementById('ai-note').value;
-      const prompt=`Tạo dàn ý chi tiết cho bài viết SEO tiếng Việt.
+      const prompt=`Tạo dàn ý cho bài viết SEO tiếng Việt. Ngắn gọn, không giải thích dài dòng.
 
 Từ khóa: ${kw}
 Số từ mục tiêu: ${words}
 Giọng văn: ${tone}
 ${note?'Ghi chú: '+note:''}
 
-Yêu cầu:
-- Nghiên cứu ý định tìm kiếm của từ khóa này
-- Tạo cấu trúc H2/H3 logic, bao phủ đầy đủ chủ đề
-- Mỗi H2 có 2-3 H3 con nếu cần
-- Bao gồm gợi ý nội dung ngắn cho mỗi section
-- Định dạng:
+Format dàn ý (chỉ heading + gạch đầu dòng ngắn):
 ## [Tiêu đề H2]
-- Nội dung gợi ý ngắn
-### [Tiêu đề H3] (nếu cần)
-- Nội dung gợi ý ngắn
+- ý chính ngắn gọn
+### [Tiêu đề H3]
+- ý chính ngắn gọn
 
-Chỉ trả về dàn ý, không có lời giải thích.`;
-      outline=await callClaude(prompt,'Bạn là chuyên gia SEO content tiếng Việt.',1500);
+Yêu cầu:
+- 5-7 H2 phù hợp với ${words} từ
+- Mỗi H2 có 0-2 H3 nếu cần
+- Gạch đầu dòng tối đa 1 dòng mỗi mục
+- Không thêm giải thích hay lời dẫn
+
+Chỉ trả về dàn ý, không có text khác.`;
+      outline=await callClaude(prompt,'Bạn là chuyên gia SEO content tiếng Việt.',2500);
     }
     S.outline=outline;
     document.getElementById('outline-editor').value=outline;
