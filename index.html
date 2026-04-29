@@ -140,7 +140,7 @@ tr:hover td{background:var(--bg3)}
 /* Rich editor */
 #content-editor:empty:before{content:attr(data-placeholder);color:var(--text3);pointer-events:none}
 #content-editor h1{font-size:22px;font-weight:700;margin:20px 0 10px}
-#content-editor h2{font-size:18px;font-weight:600;margin:18px 0 8px;border-bottom:2px solid var(--accent);padding-bottom:4px}
+#content-editor h2{font-size:18px;font-weight:600;margin:18px 0 8px}
 #content-editor h3{font-size:15px;font-weight:600;margin:14px 0 6px}
 #content-editor h4{font-size:14px;font-weight:600;margin:10px 0 4px}
 #content-editor p{margin:8px 0;line-height:1.8}
@@ -304,8 +304,8 @@ tr:hover td{background:var(--bg3)}
               Bước 2 — Duyệt & chỉnh sửa dàn ý
             </div>
             <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Chỉnh sửa trực tiếp bên dưới trước khi viết bài. Dùng ## cho H2, ### cho H3.</div>
-            <textarea id="outline-editor" rows="12"
-              style="font-size:12px;line-height:1.8;font-family:monospace;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);width:100%;padding:10px;resize:vertical"
+            <textarea id="outline-editor" rows="18"
+              style="font-size:12px;line-height:1.8;font-family:monospace;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);width:100%;padding:10px;resize:vertical;min-height:280px"
               placeholder="## Tiêu đề H2&#10;### Tiêu đề H3&#10;## Tiêu đề H2 khác..."></textarea>
             <div class="btn-group">
               <button class="btn btn-primary" onclick="startWrite()" id="btn-write">
@@ -323,10 +323,57 @@ tr:hover td{background:var(--bg3)}
               Bước 3 — Xuất bản
             </div>
             <div id="no-site-warn" class="alert alert-warn" style="display:none">Chưa chọn website.</div>
-            <label>Danh mục (Category ID)</label>
-            <input id="cat-id" type="number" value="1">
+
+            <div class="grid2">
+              <div>
+                <label>Danh mục (Category ID)</label>
+                <input id="cat-id" type="number" value="1" placeholder="1">
+              </div>
+              <div>
+                <label>Slug (URL bài viết)</label>
+                <input id="post-slug" placeholder="vd: motor-dien-3-pha (để trống = tự động)">
+              </div>
+            </div>
+
             <label>Tags (cách nhau dấu phẩy)</label>
             <input id="tags-input" placeholder="motor điện, thiết bị điện">
+
+            <label>Excerpt (mô tả ngắn hiển thị ngoài danh sách)</label>
+            <textarea id="post-excerpt" rows="2" placeholder="Để trống sẽ dùng meta description"></textarea>
+
+            <div class="grid2" style="margin-top:12px">
+              <div>
+                <label>Tác giả (Author ID)</label>
+                <input id="post-author" type="number" value="1" placeholder="1">
+              </div>
+              <div>
+                <label>Đặt lịch đăng (tùy chọn)</label>
+                <input id="post-date" type="datetime-local">
+              </div>
+            </div>
+
+            <!-- Upload ảnh đại diện -->
+            <label style="margin-top:12px">Ảnh đại diện (Featured Image)</label>
+            <div id="media-upload-area"
+              style="border:2px dashed var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;cursor:pointer;transition:border-color .15s"
+              onclick="document.getElementById('media-file-input').click()"
+              ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+              ondragleave="this.style.borderColor='var(--border)'"
+              ondrop="handleMediaDrop(event)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:28px;height:28px;color:var(--text3);margin-bottom:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <div style="font-size:12px;color:var(--text3)">Bấm hoặc kéo thả ảnh vào đây</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:3px">JPG, PNG, WebP — tối đa 5MB</div>
+            </div>
+            <input type="file" id="media-file-input" accept="image/*" style="display:none" onchange="handleMediaSelect(this)">
+            <div id="media-preview" style="display:none;margin-top:10px">
+              <img id="media-thumb" style="width:100%;max-height:120px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border)">
+              <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                <div id="media-filename" style="font-size:11px;color:var(--text3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+                <button class="btn btn-danger btn-sm" onclick="clearMediaUpload()">✕</button>
+              </div>
+              <div id="media-upload-result" style="font-size:11px;margin-top:6px"></div>
+            </div>
+
             <div class="btn-group">
               <button class="btn btn-green" onclick="publishPost('publish')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -334,9 +381,9 @@ tr:hover td{background:var(--bg3)}
               </button>
               <button class="btn btn-secondary" onclick="publishPost('draft')">Lưu nháp</button>
               <button class="btn btn-secondary" onclick="saveLocal()">Lưu local</button>
-              <button class="btn btn-secondary btn-sm" onclick="previewHtml()" title="Xem trước HTML">
+              <button class="btn btn-secondary btn-sm" onclick="previewHtml()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                Preview HTML
+                Preview
               </button>
             </div>
           </div>
@@ -1548,32 +1595,24 @@ async function suggestLinksAuto(content,kw){
   if(loadEl)loadEl.style.display='flex';
 
   // Gửi toàn bộ nội dung bài (tối đa 2000 ký tự) + tiêu đề + excerpt của bài cũ
-  const postList=S.wpPosts.slice(0,60).map((p,i)=>
-    `${i+1}. Tiêu đề: ${p.title}\n   URL: ${p.url}${p.excerpt?'\n   Tóm tắt: '+p.excerpt:''}`
-  ).join('\n\n');
+  const postList=S.wpPosts.slice(0,50).map((p,i)=>
+    `${i+1}. ${p.title} | ${p.url}`
+  ).join('\n');
 
-  const prompt=`Bạn là chuyên gia SEO internal linking. Phân tích kỹ bài viết đang soạn và gợi ý internal link chính xác.
+  const prompt=`Chuyên gia SEO. Gợi ý 4-5 internal link cho bài viết.
 
-BÀI ĐANG VIẾT:
-- Từ khóa chính: ${kw}
-- Nội dung đầy đủ (2000 ký tự):
-${content.substring(0,2000)}
+Bài đang viết - Từ khóa: ${kw}
+Nội dung (300 ký tự): ${content.substring(0,300)}
 
-DANH SÁCH BÀI TRÊN WEBSITE:
+Bài trên website:
 ${postList}
 
-YÊU CẦU PHÂN TÍCH:
-1. Đọc kỹ nội dung bài đang viết để hiểu đầy đủ chủ đề, các luận điểm chính
-2. So sánh semantic với từng bài trong danh sách — không chỉ match keyword
-3. Chỉ gợi ý bài thật sự bổ sung thông tin cho người đọc, không gợi ý bài cùng chủ đề (cạnh tranh nhau)
-4. anchor_text phải là cụm từ tự nhiên trong văn cảnh, 2-5 từ tiếng Việt
-5. context là đoạn văn cụ thể trong bài đang viết nên chèn link (trích ~15 từ)
-
-Trả về JSON array (KHÔNG có text khác):
+Chỉ gợi ý bài liên quan thật sự, không cùng chủ đề cạnh tranh.
+JSON array, KHÔNG có text khác:
 [{"url":"...","title":"...","anchor_text":"...","reason":"...","context":"..."}]`;
 
   try{
-    const resp=await callClaude(prompt,'Bạn chỉ trả về JSON array hợp lệ, không có bất kỳ text nào khác.',1200);
+    const resp=await callClaude(prompt,'Chỉ trả về JSON array hợp lệ, không có text nào khác.',1500);
     const clean=resp.replace(/```json|```/g,'').trim();
     const startIdx=clean.indexOf('[');
     const endIdx=clean.lastIndexOf(']');
@@ -1835,23 +1874,95 @@ async function publishPost(status){
   const site=S.currentSite;
   if(!site){toast('Chọn website trước','error');return;}
   const title=document.getElementById('title').value.trim();
-  const rawContent=getEditorContent().trim();
-  if(!title||!rawContent){toast('Cần có tiêu đề và nội dung','error');return;}
-  const content=rawContent;
-  toast(status==='publish'?'Đang đăng bài...':'Đang lưu nháp...');
+  const content=getEditorContent().trim();
+  if(!title||!content){toast('Cần có tiêu đề và nội dung','error');return;}
+
+  // Thu thập tất cả fields
+  const catId=parseInt(document.getElementById('cat-id').value)||1;
+  const slug=document.getElementById('post-slug').value.trim();
+  const tagsRaw=document.getElementById('tags-input').value.trim();
+  const excerptRaw=document.getElementById('post-excerpt').value.trim();
+  const excerpt=excerptRaw||document.getElementById('meta').value.trim();
+  const authorId=parseInt(document.getElementById('post-author').value)||1;
+  const scheduledDate=document.getElementById('post-date').value;
+
+  // Xác định status: nếu có lịch đăng thì là 'future', không thì dùng status truyền vào
+  const finalStatus=scheduledDate?'future':status;
+
+  toast(finalStatus==='publish'?'Đang đăng bài...':finalStatus==='future'?'Đang đặt lịch...':'Đang lưu nháp...');
+
   try{
     const creds=safeBase64(site.user+':'+site.pass);
+
+    // Bước 1: Xử lý tags — tạo tag nếu chưa có, lấy ID
+    let tagIds=[];
+    if(tagsRaw){
+      const tagNames=tagsRaw.split(',').map(t=>t.trim()).filter(Boolean);
+      for(const name of tagNames){
+        try{
+          // Tìm tag đã có
+          const searchR=await fetch(`${site.url}/wp-json/wp/v2/tags?search=${encodeURIComponent(name)}&per_page=5`,{
+            headers:{Authorization:'Basic '+creds}
+          });
+          const existing=await searchR.json();
+          const found=existing.find(t=>t.name.toLowerCase()===name.toLowerCase());
+          if(found){
+            tagIds.push(found.id);
+          } else {
+            // Tạo tag mới
+            const createR=await fetch(`${site.url}/wp-json/wp/v2/tags`,{
+              method:'POST',
+              headers:{Authorization:'Basic '+creds,'Content-Type':'application/json'},
+              body:JSON.stringify({name})
+            });
+            if(createR.ok){const newTag=await createR.json();tagIds.push(newTag.id);}
+          }
+        }catch{}
+      }
+    }
+
+    // Bước 2: Build post body
+    const body={
+      title,
+      content,
+      status:finalStatus,
+      categories:[catId],
+      author:authorId,
+      excerpt,
+    };
+    if(slug) body.slug=slug;
+    if(tagIds.length) body.tags=tagIds;
+    if(scheduledDate) body.date=new Date(scheduledDate).toISOString();
+
+    // Bước 3: Đăng bài
     const r=await fetch(site.url+'/wp-json/wp/v2/posts',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Basic '+creds},
-      body:JSON.stringify({title,content,status,categories:[parseInt(document.getElementById('cat-id').value)||1]})
+      headers:{Authorization:'Basic '+creds,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
     });
     if(!r.ok){const e=await r.json();throw new Error(e.message||'HTTP '+r.status);}
     const post=await r.json();
-    savePostRecord({status,url:post.link||''});
-    toast(status==='publish'?'Đã đăng bài thành công!':'Đã lưu nháp!');
+
+    // Bước 4: Set featured image nếu đã upload
+    if(window._featuredMediaId){
+      await fetch(`${site.url}/wp-json/wp/v2/posts/${post.id}`,{
+        method:'POST',
+        headers:{Authorization:'Basic '+creds,'Content-Type':'application/json'},
+        body:JSON.stringify({featured_media:window._featuredMediaId})
+      });
+    }
+
+    savePostRecord({status:finalStatus,url:post.link||''});
+
+    const msg=finalStatus==='publish'?'Đã đăng bài thành công!'
+      :finalStatus==='future'?`Đã đặt lịch đăng lúc ${new Date(scheduledDate).toLocaleString('vi-VN')}`
+      :'Đã lưu nháp!';
+    toast(msg);
+    window._featuredMediaId=null;
     resetWrite();
-  }catch(e){toast('Lỗi: '+e.message,'error');}
+  }catch(e){
+    toast('Lỗi: '+e.message,'error');
+  }
 }
 
 function previewHtml(){
@@ -1886,6 +1997,93 @@ function previewHtml(){
   win.document.close();
 }
 
+// ─── Media Upload ───
+let mediaFile=null;
+
+function handleMediaSelect(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>5*1024*1024){toast('Ảnh quá 5MB','error');return;}
+  mediaFile=file;
+  showMediaPreview(file);
+  uploadMediaToWP();
+}
+
+function handleMediaDrop(e){
+  e.preventDefault();
+  document.getElementById('media-upload-area').style.borderColor='var(--border)';
+  const file=e.dataTransfer.files[0];
+  if(!file||!file.type.startsWith('image/'))return;
+  if(file.size>5*1024*1024){toast('Ảnh quá 5MB','error');return;}
+  mediaFile=file;
+  showMediaPreview(file);
+  uploadMediaToWP();
+}
+
+function showMediaPreview(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.getElementById('media-thumb').src=e.target.result;
+    document.getElementById('media-filename').textContent=file.name+' ('+Math.round(file.size/1024)+'KB)';
+    document.getElementById('media-preview').style.display='block';
+    document.getElementById('media-upload-area').style.display='none';
+    document.getElementById('media-upload-result').innerHTML='<span style="color:var(--text3);font-size:11px"><span class="spin" style="border-top-color:var(--accent2);border-color:var(--border);width:10px;height:10px;border-width:1.5px"></span> Đang upload...</span>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearMediaUpload(){
+  mediaFile=null;
+  document.getElementById('media-preview').style.display='none';
+  document.getElementById('media-upload-area').style.display='block';
+  document.getElementById('media-file-input').value='';
+  document.getElementById('media-upload-result').textContent='';
+}
+
+async function uploadMediaToWP(){
+  const site=S.currentSite;
+  if(!site){toast('Chọn website trước','error');return;}
+  if(!mediaFile){toast('Chưa chọn ảnh','error');return;}
+  const resultEl=document.getElementById('media-upload-result');
+  resultEl.innerHTML='<span style="color:var(--text3);font-size:11px">Đang upload lên WordPress...</span>';
+  try{
+    const creds=safeBase64(site.user+':'+site.pass);
+    const formData=new FormData();
+    formData.append('file',mediaFile,mediaFile.name);
+    const r=await fetch(site.url+'/wp-json/wp/v2/media',{
+      method:'POST',
+      headers:{
+        Authorization:'Basic '+creds,
+        'Content-Disposition':'attachment; filename="'+mediaFile.name+'"'
+      },
+      body:formData
+    });
+    if(!r.ok){const e=await r.json();throw new Error(e.message||'HTTP '+r.status);}
+    const media=await r.json();
+    const url=media.source_url||media.guid?.rendered||'';
+    const alt=document.getElementById('title').value||mediaFile.name;
+    // Lưu ID để set featured image khi đăng bài
+    window._featuredMediaId=media.id;
+    resultEl.innerHTML=`<span style="color:var(--green)">✓ Upload thành công — Đã set làm Featured Image</span>
+      <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText('${url}').then(()=>toast('Đã copy URL!'))">Copy URL</button>
+        <button class="btn btn-secondary btn-sm" onclick="insertImageToEditor('${url}','${alt.replace(/'/g,'')}')">Chèn vào bài</button>
+      </div>`;
+    toast('Upload ảnh thành công!');
+  }catch(e){
+    resultEl.innerHTML=`<span style="color:var(--red)">Lỗi: ${e.message}</span>`;
+    toast('Upload thất bại: '+e.message,'error');
+  }
+}
+
+function insertImageToEditor(url,alt){
+  const editor=document.getElementById('content-editor');
+  editor.focus();
+  document.execCommand('insertHTML',false,`<img src="${url}" alt="${alt}" style="max-width:100%;height:auto;margin:12px 0">`);
+  updateScore();
+  toast('Đã chèn ảnh vào bài viết!');
+}
+
 function saveLocal(){
   const title=document.getElementById('title').value.trim()||'(chưa có tiêu đề)';
   savePostRecord({status:'local',url:''});
@@ -1917,8 +2115,10 @@ function savePostRecord({status,url}){
 function updateBadge(){document.getElementById('badge-count').textContent=S.posts.length;}
 
 function resetWrite(){
-  ['kw','title','meta','ai-note','custom-outline','outline-editor'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.value='';
+  ['kw','title','meta','ai-note','custom-outline','outline-editor',
+   'cat-id','tags-input','post-slug','post-excerpt','post-author','post-date'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.value=id==='cat-id'?'1':id==='post-author'?'1':'';
   });
   document.getElementById('ai-words').value='1200';
   document.getElementById('card-outline').style.display='none';
