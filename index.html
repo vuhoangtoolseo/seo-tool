@@ -895,38 +895,17 @@ ${gscSection}
 
 NHIỆM VỤ:
 1. Xác định 1 Pillar Page (bài trụ cột) cho chủ đề gốc
-2. Đề xuất 8-12 Cluster Pages (bài vệ tinh) xoay quanh Pillar
+2. Đề xuất 8-10 Cluster Pages (bài vệ tinh) xoay quanh Pillar
 3. Mỗi Cluster phải: khác chủ đề nhau, bổ sung cho Pillar, không cạnh tranh nhau
-4. Phân loại: informational (thông tin), commercial (thương mại), transactional (mua hàng)
-5. Đánh giá độ ưu tiên: high/medium/low dựa trên search intent và GSC data (nếu có)
-6. Xác định internal link: Cluster nào link tới Pillar, Cluster nào link chéo nhau
+4. Phân loại: informational / commercial / transactional
+5. Độ ưu tiên: high / medium / low
+6. links_to_clusters: mảng ID cluster nên link chéo nhau (tối đa 2 ID mỗi cluster)
 
-Trả về JSON (KHÔNG có text khác):
-{
-  "pillar": {
-    "title": "...",
-    "keyword": "...",
-    "description": "...",
-    "type": "pillar"
-  },
-  "clusters": [
-    {
-      "id": 1,
-      "title": "...",
-      "keyword": "...",
-      "description": "...",
-      "type": "informational|commercial|transactional",
-      "priority": "high|medium|low",
-      "gsc_clicks": 0,
-      "gsc_impressions": 0,
-      "links_to_pillar": true,
-      "links_to_clusters": [2, 3]
-    }
-  ]
-}`;
+Trả về JSON ngắn gọn (KHÔNG có text khác, KHÔNG có trường description):
+{"pillar":{"title":"...","keyword":"...","type":"pillar"},"clusters":[{"id":1,"title":"...","keyword":"...","type":"informational","priority":"high","links_to_pillar":true,"links_to_clusters":[2]}]}`;
 
   try{
-    const resp=await callClaude(prompt,'Chỉ trả về JSON hợp lệ, không có text khác. Không dùng ký tự đặc biệt trong chuỗi JSON.',3000);
+    const resp=await callClaude(prompt,'Chỉ trả về JSON hợp lệ, ngắn gọn, không có text khác.',4000);
     let clean=resp.replace(/```json|```/g,'').trim();
     // Tìm JSON object
     const startIdx=clean.indexOf('{');
@@ -1062,8 +1041,8 @@ function stratWritePost(clusterIdx){
   if(!stratData)return;
   const item=clusterIdx===null?stratData.pillar:stratData.clusters[clusterIdx];
   showPanel('write');
-  document.getElementById('kw').value=item.keyword;
-  document.getElementById('ai-note').value=item.description||'';
+  document.getElementById('kw').value=item.keyword||'';
+  document.getElementById('ai-note').value='';
   toast('Đã chuyển sang viết bài: '+item.keyword);
 }
 
