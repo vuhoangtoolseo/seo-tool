@@ -577,40 +577,55 @@ tr:hover td{background:var(--bg3)}
     <div class="panel" id="panel-strategy">
       <div class="section-header">
         <h2>Chiến lược Content SEO</h2>
-        <div style="display:flex;gap:8px;align-items:center">
-          <div id="strat-gsc-status" style="font-size:12px;color:var(--text3)"></div>
-        </div>
       </div>
 
       <!-- Input -->
       <div class="card" id="strat-input-card">
         <div class="card-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          Phân tích chủ đề
+          Nghiên cứu chủ đề
         </div>
         <div class="grid2">
           <div>
-            <label>Chủ đề gốc (Pillar Topic)</label>
-            <input id="strat-topic" placeholder="vd: Motor điện, Nội thất gỗ, Ghế nhựa...">
-            <label>Ngành / lĩnh vực</label>
-            <input id="strat-industry" placeholder="vd: Thiết bị điện công nghiệp, Nội thất">
+            <label>Chủ đề gốc (Pillar Topic) *</label>
+            <input id="strat-topic" placeholder="vd: Motor điện 3 pha, Ghế nhựa đúc...">
+
             <label>Đối tượng khách hàng</label>
             <input id="strat-audience" placeholder="vd: Kỹ sư MEP, Chủ doanh nghiệp sản xuất">
-            <label>Ghi chú thêm (tùy chọn)</label>
-            <textarea id="strat-note" rows="2" placeholder="vd: tập trung thị trường B2B miền Nam, đối thủ chính là..."></textarea>
+
+            <label>Mục tiêu chính</label>
+            <select id="strat-goal">
+              <option value="traffic">Tăng traffic tự nhiên</option>
+              <option value="conversion">Tăng chuyển đổi / bán hàng</option>
+              <option value="brand">Brand awareness / nhận diện thương hiệu</option>
+              <option value="all">Cân bằng cả 3</option>
+            </select>
+
+            <label>Giai đoạn website</label>
+            <select id="strat-stage">
+              <option value="new">Mới — dưới 20 bài (tập trung long-tail)</option>
+              <option value="growing">Đang phát triển — 20-100 bài</option>
+              <option value="established">Established — 100+ bài (đánh từ khóa cạnh tranh)</option>
+            </select>
           </div>
           <div>
-            <label>Google Search Console</label>
-            <div id="strat-gsc-card" style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;font-size:12px">
-              <div id="strat-gsc-info" style="color:var(--text3);margin-bottom:10px">Kết nối GSC để lấy data từ khóa thực</div>
+            <label>Đối thủ cạnh tranh (domain, mỗi dòng 1 site)</label>
+            <textarea id="strat-competitors" rows="3" placeholder="vd:&#10;thietbidien.com&#10;diencongnghiep.vn"></textarea>
+
+            <label>Ghi chú thêm (tùy chọn)</label>
+            <textarea id="strat-note" rows="2" placeholder="vd: tập trung thị trường B2B miền Nam, tránh chủ đề X..."></textarea>
+
+            <label style="margin-top:10px">Google Search Console</label>
+            <div id="strat-gsc-card" style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px;font-size:12px">
+              <div id="strat-gsc-info" style="color:var(--text3);margin-bottom:8px">Kết nối GSC để lấy data từ khóa thực</div>
               <button class="btn btn-secondary btn-sm" onclick="stratFetchGSC()" id="btn-strat-gsc">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
                 Kéo data GSC
               </button>
-              <div id="strat-gsc-preview" style="margin-top:8px;max-height:120px;overflow-y:auto"></div>
+              <div id="strat-gsc-preview" style="margin-top:6px;max-height:80px;overflow-y:auto"></div>
             </div>
-            <div class="alert alert-info" style="margin-top:10px;font-size:11px;line-height:1.6">
-              Nếu website mới chưa có GSC data, AI sẽ tự research dựa trên chủ đề và ngành.
+            <div class="alert alert-info" style="margin-top:8px;font-size:11px;line-height:1.5">
+              Site mới chưa có GSC data → AI research thuần túy dựa trên chủ đề.
             </div>
           </div>
         </div>
@@ -633,9 +648,9 @@ tr:hover td{background:var(--bg3)}
           <div style="margin-left:auto;font-size:12px;color:var(--text3)" id="strat-summary"></div>
         </div>
 
-        <!-- Spider view -->
-        <div id="strat-spider-view" class="card" style="padding:12px;overflow:hidden">
-          <div id="strat-spider-container" style="width:100%;height:500px;position:relative;overflow:hidden"></div>
+        <!-- Spider view — full width, taller -->
+        <div id="strat-spider-view" class="card" style="padding:0;overflow:hidden">
+          <div id="strat-spider-container" style="width:100%;height:calc(100vh - 280px);min-height:520px;position:relative"></div>
         </div>
 
         <!-- Table view -->
@@ -869,40 +884,44 @@ async function stratFetchGSC(){
 
 async function runStrategy(){
   const topic=document.getElementById('strat-topic').value.trim();
-  const industry=document.getElementById('strat-industry').value.trim();
   const audience=document.getElementById('strat-audience').value.trim();
+  const goal=document.getElementById('strat-goal').value;
+  const stage=document.getElementById('strat-stage').value;
+  const competitors=document.getElementById('strat-competitors').value.trim();
   const note=document.getElementById('strat-note').value.trim();
   if(!topic){toast('Nhập chủ đề gốc trước','error');return;}
   if(!S.apiKey){toast('Cần API key Claude','error');return;}
   const btn=document.getElementById('btn-run-strat');
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang phân tích...';
 
-  const gscSection=stratGscData.length
-    ? `DATA TỪ GOOGLE SEARCH CONSOLE (90 ngày gần nhất):
-${stratGscData.slice(0,50).map(r=>`- "${r.keys[0]}" | clicks: ${Math.round(r.clicks||0)} | impressions: ${Math.round(r.impressions||0)} | position: ${(r.position||0).toFixed(1)}`).join('\n')}`
-    : 'KHÔNG CÓ GSC DATA (website mới hoặc chưa kết nối) — hãy research thuần túy dựa trên kiến thức.';
+  const goalMap={traffic:'tăng traffic tự nhiên (ưu tiên informational)',conversion:'tăng chuyển đổi bán hàng (ưu tiên commercial + transactional)',brand:'brand awareness (cân bằng các loại)',all:'cân bằng traffic + chuyển đổi + brand'};
+  const stageMap={new:'site mới dưới 20 bài (tập trung long-tail ít cạnh tranh, search volume vừa)',growing:'site đang phát triển 20-100 bài (mix long-tail và mid-tail)',established:'site lớn 100+ bài (có thể đánh từ khóa cạnh tranh cao hơn)'};
 
   const currentYear=new Date().getFullYear();
-  const prompt=`Bạn là chuyên gia chiến lược SEO Content. Phân tích và lên kế hoạch content hoàn chỉnh.
+  const gscSection=stratGscData.length
+    ?`GSC DATA (90 ngày):\n${stratGscData.slice(0,40).map(r=>`- "${r.keys[0]}" clicks:${Math.round(r.clicks||0)} pos:${(r.position||0).toFixed(1)}`).join('\n')}`
+    :'Không có GSC data — research thuần túy.';
 
-CHỦ ĐỀ GỐC (PILLAR): ${topic}
-NGÀNH: ${industry||'Chưa xác định'}
+  const prompt=`Chuyên gia SEO content strategy. Lên kế hoạch topic cluster.
+
+CHỦ ĐỀ: ${topic}
 ĐỐI TƯỢNG: ${audience||'Chưa xác định'}
-NĂM HIỆN TẠI: ${currentYear} — dùng năm này trong tiêu đề nếu cần, KHÔNG dùng năm cũ hơn
+MỤC TIÊU: ${goalMap[goal]}
+GIAI ĐOẠN SITE: ${stageMap[stage]}
+${competitors?'ĐỐI THỦ: '+competitors:''}
 ${note?'GHI CHÚ: '+note:''}
-
+NĂM: ${currentYear}
 ${gscSection}
 
-NHIỆM VỤ:
-1. Xác định 1 Pillar Page (bài trụ cột) cho chủ đề gốc
-2. Đề xuất 8-10 Cluster Pages (bài vệ tinh) xoay quanh Pillar
-3. Mỗi Cluster phải: khác chủ đề nhau, bổ sung cho Pillar, không cạnh tranh nhau
-4. Phân loại: informational / commercial / transactional
-5. Độ ưu tiên: high / medium / low
-6. links_to_clusters: mảng ID cluster nên link chéo nhau (tối đa 2 ID mỗi cluster)
+YÊU CẦU:
+- 1 Pillar page (bài trụ cột toàn diện về chủ đề gốc)
+- 8-10 Cluster pages phù hợp với mục tiêu và giai đoạn site
+- Tỉ lệ loại bài phù hợp với mục tiêu: ${goalMap[goal]}
+- Từ khóa thực tế, không có năm trong keyword trừ khi cần thiết
+- links_to_clusters tối đa 2 ID
 
-Trả về JSON ngắn gọn (KHÔNG có text khác, KHÔNG có trường description):
-{"pillar":{"title":"...","keyword":"...","type":"pillar"},"clusters":[{"id":1,"title":"...","keyword":"...","type":"informational","priority":"high","links_to_pillar":true,"links_to_clusters":[2]}]}`;
+JSON ngắn gọn (KHÔNG text khác):
+{"pillar":{"title":"...","keyword":"...","type":"pillar"},"clusters":[{"id":1,"title":"...","keyword":"...","type":"informational","priority":"high","links_to_pillar":true,"links_to_clusters":[]}]}`;
 
   try{
     const resp=await callClaude(prompt,'Chỉ trả về JSON hợp lệ, ngắn gọn, không có text khác.',4000);
@@ -949,71 +968,69 @@ function stratSetView(view){
 function renderSpider(){
   if(!stratData)return;
   const container=document.getElementById('strat-spider-container');
-  const W=container.offsetWidth||700;
-  const H=500;
-  const cx=W/2,cy=H/2;
+  const W=container.offsetWidth||900;
+  const H=container.offsetHeight||520;
+  const cx=W/2, cy=H/2;
   const n=stratData.clusters.length;
-  const R=Math.min(W,H)*0.36;
+  const R=Math.min(W,H)*0.38;
+  const typeColor={informational:'#6c63ff',commercial:'#22c55e',transactional:'#f59e0b',pillar:'#a78bfa'};
 
-  const typeColor={informational:'#6c63ff',commercial:'#22c55e',transactional:'#f59e0b',pillar:'#8b83ff'};
-  const prioSize={high:16,medium:13,low:11};
+  let svg=`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="font-family:-apple-system,sans-serif">`;
 
-  let svg=`<svg width="${W}" height="${H}" style="font-family:inherit">`;
-
-  // Link lines từ cluster về pillar
+  // Link lines pillar → cluster
   stratData.clusters.forEach((c,i)=>{
     const angle=(2*Math.PI*i/n)-Math.PI/2;
     const x=cx+R*Math.cos(angle);
     const y=cy+R*Math.sin(angle);
-    svg+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#2e3350" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+    svg+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#2e3350" stroke-width="1.5" stroke-dasharray="5 4"/>`;
   });
 
   // Link chéo giữa clusters
   stratData.clusters.forEach((c,i)=>{
-    const angle1=(2*Math.PI*i/n)-Math.PI/2;
-    const x1=cx+R*Math.cos(angle1);
-    const y1=cy+R*Math.sin(angle1);
-    (c.links_to_clusters||[]).forEach(targetId=>{
-      const j=stratData.clusters.findIndex(cc=>cc.id===targetId);
+    const a1=(2*Math.PI*i/n)-Math.PI/2;
+    const x1=cx+R*Math.cos(a1), y1=cy+R*Math.sin(a1);
+    (c.links_to_clusters||[]).forEach(tid=>{
+      const j=stratData.clusters.findIndex(cc=>cc.id===tid);
       if(j>i){
-        const angle2=(2*Math.PI*j/n)-Math.PI/2;
-        const x2=cx+R*Math.cos(angle2);
-        const y2=cy+R*Math.sin(angle2);
-        svg+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#3a3560" stroke-width="1" stroke-dasharray="2 4"/>`;
+        const a2=(2*Math.PI*j/n)-Math.PI/2;
+        const x2=cx+R*Math.cos(a2), y2=cy+R*Math.sin(a2);
+        svg+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#3a3560" stroke-width="1" stroke-dasharray="2 5" opacity="0.6"/>`;
       }
     });
   });
 
-  // Pillar node ở giữa
+  // Pillar node
   svg+=`<g style="cursor:pointer" onclick="stratWritePost(null)">
-    <circle cx="${cx}" cy="${cy}" r="42" fill="#1e1b4b" stroke="#8b83ff" stroke-width="2"/>
-    <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#8b83ff" font-size="11" font-weight="600">PILLAR</text>
-    <text x="${cx}" y="${cy+8}" text-anchor="middle" fill="#c4b5fd" font-size="10" font-weight="500">${truncate(stratData.pillar.keyword,18)}</text>
+    <circle cx="${cx}" cy="${cy}" r="52" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2.5"/>
+    <text x="${cx}" y="${cy-8}" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700" letter-spacing="1">PILLAR</text>
+    <text x="${cx}" y="${cy+8}" text-anchor="middle" fill="#ddd6fe" font-size="10">${truncate(stratData.pillar.keyword,20)}</text>
   </g>`;
 
   // Cluster nodes
   stratData.clusters.forEach((c,i)=>{
     const angle=(2*Math.PI*i/n)-Math.PI/2;
-    const x=cx+R*Math.cos(angle);
-    const y=cy+R*Math.sin(angle);
+    const x=Math.round(cx+R*Math.cos(angle));
+    const y=Math.round(cy+R*Math.sin(angle));
     const col=typeColor[c.type]||'#6c63ff';
-    const r=c.priority==='high'?34:c.priority==='medium'?28:23;
-    const kw=truncate(c.keyword,16);
+    const r=c.priority==='high'?38:c.priority==='medium'?30:24;
+    const kw=truncate(c.keyword,14);
+    const titleShort=truncate(c.title,22);
     svg+=`<g style="cursor:pointer" onclick="stratWritePost(${i})">
-      <circle cx="${x}" cy="${y}" r="${r}" fill="${col}22" stroke="${col}" stroke-width="1.5"/>
-      <text x="${x}" y="${y-3}" text-anchor="middle" fill="${col}" font-size="9" font-weight="600">${kw}</text>
-      <text x="${x}" y="${y+9}" text-anchor="middle" fill="${col}99" font-size="8">${c.priority}</text>
-    </g>`;
+      <circle cx="${x}" cy="${y}" r="${r}" fill="${col}18" stroke="${col}" stroke-width="2"/>
+      <text x="${x}" y="${y-4}" text-anchor="middle" fill="${col}" font-size="9" font-weight="600">${kw}</text>
+      <text x="${x}" y="${y+8}" text-anchor="middle" fill="${col}aa" font-size="8">${c.priority==='high'?'● Cao':c.priority==='medium'?'● TB':'● Thấp'}</text>
+    </g>
+    <title>${titleShort}</title>`;
   });
 
   // Legend
-  svg+=`<g>
-    <rect x="10" y="${H-60}" width="180" height="50" rx="6" fill="#1a1d27" stroke="#2e3350" stroke-width="0.5"/>
-    <circle cx="22" cy="${H-48}" r="4" fill="#6c63ff"/><text x="30" y="${H-44}" fill="#9ba3c0" font-size="9">Informational</text>
-    <circle cx="22" cy="${H-34}" r="4" fill="#22c55e"/><text x="30" y="${H-30}" fill="#9ba3c0" font-size="9">Commercial</text>
-    <circle cx="90" cy="${H-48}" r="4" fill="#f59e0b"/><text x="98" y="${H-44}" fill="#9ba3c0" font-size="9">Transactional</text>
-    <text x="90" y="${H-30}" fill="#9ba3c0" font-size="9">Kích thước = Ưu tiên</text>
-  </g>`;
+  const lx=14, ly=H-72;
+  svg+=`<rect x="${lx}" y="${ly}" width="190" height="58" rx="6" fill="#1a1d27" stroke="#2e3350" stroke-width="0.5" opacity="0.9"/>
+    <circle cx="${lx+12}" cy="${ly+14}" r="5" fill="#6c63ff"/><text x="${lx+22}" y="${ly+18}" fill="#9ba3c0" font-size="10">Thông tin</text>
+    <circle cx="${lx+12}" cy="${ly+30}" r="5" fill="#22c55e"/><text x="${lx+22}" y="${ly+34}" fill="#9ba3c0" font-size="10">Thương mại</text>
+    <circle cx="${lx+100}" cy="${ly+14}" r="5" fill="#f59e0b"/><text x="${lx+110}" y="${ly+18}" fill="#9ba3c0" font-size="10">Mua hàng</text>
+    <text x="${lx+100}" y="${ly+34}" fill="#9ba3c0" font-size="10">Kích thước = Ưu tiên</text>
+    <text x="${lx+8}" y="${ly+50}" fill="#6b7399" font-size="9">Bấm vào node để viết bài</text>`;
 
   svg+='</svg>';
   container.innerHTML=svg;
