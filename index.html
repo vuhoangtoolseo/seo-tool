@@ -630,15 +630,33 @@ tr:hover td{background:var(--bg3)}
         </div>
       </div>
 
+      <!-- Chiến lược đã lưu -->
+      <div class="card" id="strat-saved-card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Chiến lược đã lưu
+        </div>
+        <div id="strat-saved-list">
+          <div style="font-size:12px;color:var(--text3)">Chưa có chiến lược nào được lưu.</div>
+        </div>
+      </div>
+
       <!-- Results -->
       <div id="strat-results" style="display:none">
 
-        <!-- View toggle -->
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <!-- View toggle + save buttons -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
           <span style="font-size:13px;font-weight:500">Hiển thị:</span>
           <button class="btn btn-primary btn-sm" id="btn-view-spider" onclick="stratSetView('spider')">Mạng nhện</button>
           <button class="btn btn-secondary btn-sm" id="btn-view-table" onclick="stratSetView('table')">Bảng danh sách</button>
-          <div style="margin-left:auto;font-size:12px;color:var(--text3)" id="strat-summary"></div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--text3)" id="strat-summary"></span>
+            <button class="btn btn-secondary btn-sm" onclick="stratSave()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+              Lưu chiến lược
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="stratClear()">Xóa</button>
+          </div>
         </div>
 
         <!-- Spider view — full width, taller -->
@@ -818,6 +836,74 @@ let S={
   outline:'',
 };
 
+// ─── Strategy Save/Load ───
+function stratSave(){
+  if(!stratData){toast('Chưa có chiến lược để lưu','error');return;}
+  const topic=document.getElementById('strat-topic').value.trim()||stratData.pillar?.keyword||'Chưa đặt tên';
+  const saved=LS.get('seo_strategies',[]);
+  const entry={
+    id:Date.now().toString(),
+    topic,
+    date:new Date().toLocaleDateString('vi-VN'),
+    data:stratData
+  };
+  // Tránh duplicate cùng topic — update nếu đã có
+  const idx=saved.findIndex(s=>s.topic===topic);
+  if(idx>=0) saved[idx]=entry;
+  else saved.unshift(entry);
+  if(saved.length>20)saved.pop();
+  LS.set('seo_strategies',saved);
+  renderStratSavedList();
+  gdAutoSave();
+  toast('Đã lưu chiến lược: '+topic);
+}
+
+function stratClear(){
+  if(!confirm('Xóa kết quả hiện tại?'))return;
+  stratData=null;
+  document.getElementById('strat-results').style.display='none';
+}
+
+function stratLoad(id){
+  const saved=LS.get('seo_strategies',[]);
+  const entry=saved.find(s=>s.id===id);
+  if(!entry){toast('Không tìm thấy chiến lược','error');return;}
+  stratData=entry.data;
+  document.getElementById('strat-topic').value=entry.topic;
+  document.getElementById('strat-results').style.display='block';
+  document.getElementById('strat-summary').textContent=`1 Pillar + ${stratData.clusters.length} Cluster pages`;
+  stratSetView('spider');
+  document.getElementById('strat-results').scrollIntoView({behavior:'smooth'});
+  toast('Đã tải chiến lược: '+entry.topic);
+}
+
+function stratDelete(id){
+  if(!confirm('Xóa chiến lược này?'))return;
+  const saved=LS.get('seo_strategies',[]).filter(s=>s.id!==id);
+  LS.set('seo_strategies',saved);
+  renderStratSavedList();
+  toast('Đã xóa');
+}
+
+function renderStratSavedList(){
+  const saved=LS.get('seo_strategies',[]);
+  const el=document.getElementById('strat-saved-list');
+  if(!el)return;
+  if(!saved.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--text3)">Chưa có chiến lược nào được lưu.</div>';
+    return;
+  }
+  el.innerHTML=saved.map(s=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${s.topic}</div>
+        <div style="font-size:11px;color:var(--text3)">${s.date} — 1 Pillar + ${s.data?.clusters?.length||0} Clusters</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="stratLoad('${s.id}')">Tải lại</button>
+      <button class="btn btn-danger btn-sm" onclick="stratDelete('${s.id}')">Xóa</button>
+    </div>`).join('');
+}
+
 // ─── Content Strategy ───
 let stratData=null;
 let stratGscData=[];
@@ -946,6 +1032,8 @@ YÊU CẦU QUAN TRỌNG:
     document.getElementById('strat-summary').textContent=`1 Pillar + ${stratData.clusters.length} Cluster pages`;
     stratSetView('spider');
     document.getElementById('strat-results').scrollIntoView({behavior:'smooth'});
+    // Auto-save
+    stratSave();
     toast('Chiến lược đã sẵn sàng!');
   }catch(e){
     toast('Lỗi phân tích: '+e.message,'error');
@@ -1197,6 +1285,7 @@ async function gdSaveAll(){
       sites:S.sites,
       posts:S.posts,
       apiKey:S.apiKey,
+      strategies:LS.get('seo_strategies',[]),
       savedAt:new Date().toISOString(),
     });
     const blob=new Blob([payload],{type:'application/json'});
@@ -1259,12 +1348,14 @@ async function gdLoadAll(silent=false){
     if(data.sites) S.sites=data.sites;
     if(data.posts) S.posts=data.posts;
     if(data.apiKey){S.apiKey=data.apiKey;LS.set('seo_api_key',data.apiKey);document.getElementById('api-key').value=data.apiKey;}
+    if(data.strategies) LS.set('seo_strategies',data.strategies);
     LS.set('seo_sites',S.sites);
     LS.set('seo_posts',S.posts);
     refreshSiteSelector();
     renderSitesList();
     renderPostsTable();
     updateBadge();
+    renderStratSavedList();
     const savedAt=data.savedAt?new Date(data.savedAt).toLocaleString('vi-VN'):'';
     const info=document.getElementById('gd-sync-info');
     if(info) info.textContent='Tải thành công — lưu lần cuối: '+savedAt;
@@ -1291,6 +1382,7 @@ function init(){
   updateBadge();
   updateScore();
   renderPwStatus();
+  renderStratSavedList();
   renderGdStatus();
   checkLockScreen();
 }
