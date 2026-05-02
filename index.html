@@ -744,14 +744,14 @@ tr:hover td{background:var(--bg3)}
               Đồng bộ Google Drive
             </div>
             <div id="gd-status-bar" style="margin-bottom:10px"></div>
-            <label>Google Client ID</label>
-            <input id="gd-client-id" placeholder="xxxx.apps.googleusercontent.com">
             <div class="btn-group">
-              <button class="btn btn-primary btn-sm" onclick="gdSaveClientId()">Lưu Client ID</button>
-              <button class="btn btn-secondary btn-sm" onclick="gdLogin()" id="btn-gd-login">Đăng nhập Google</button>
+              <button class="btn btn-primary btn-sm" onclick="gdLogin()" id="btn-gd-login">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Đăng nhập Google
+              </button>
               <button class="btn btn-danger btn-sm" onclick="gdLogout()" id="btn-gd-logout" style="display:none">Đăng xuất</button>
             </div>
-            <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap" id="gd-sync-btns" style="display:none">
+            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap" id="gd-sync-btns">
               <button class="btn btn-green btn-sm" onclick="gdSaveAll()" id="btn-gd-save">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 Lưu lên Drive
@@ -763,8 +763,8 @@ tr:hover td{background:var(--bg3)}
             </div>
             <div id="gd-sync-info" style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.6"></div>
             <div class="alert alert-info" style="margin-top:12px;font-size:11px;line-height:1.6">
-              Dữ liệu lưu vào file <strong>seo-writer-data.json</strong> trên Google Drive của bạn.<br>
-              Mở app ở máy nào → Tải từ Drive → dữ liệu đồng bộ ngay.
+              Dữ liệu lưu vào <strong>seo-writer-data.json</strong> trên Drive.<br>
+              Máy khác: Đăng nhập Google → Tải từ Drive → đồng bộ ngay.
             </div>
           </div>
 
@@ -1203,16 +1203,8 @@ const GD_FILE_NAME='seo-writer-data.json';
 const GD_SCOPE='https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/webmasters.readonly';
 let gdToken=null;
 let gdFileId=LS.get('gd_file_id',null);
-let gdClientId=LS.get('gd_client_id','');
-
-function gdSaveClientId(){
-  const id=document.getElementById('gd-client-id').value.trim();
-  if(!id){toast('Nhập Client ID','error');return;}
-  gdClientId=id;
-  LS.set('gd_client_id',id);
-  toast('Đã lưu Client ID');
-  renderGdStatus();
-}
+let gdClientId='289217311207-pr96o5kan8862dc3hlavcnis1v8j3shl.apps.googleusercontent.com';
+LS.set('gd_client_id',gdClientId);
 
 function gdLogin(){
   if(!gdClientId){toast('Nhập Client ID trước','error');return;}
@@ -1242,12 +1234,10 @@ function gdLogout(){
 
 function renderGdStatus(){
   const bar=document.getElementById('gd-status-bar');
-  const cidInput=document.getElementById('gd-client-id');
   const syncBtns=document.getElementById('gd-sync-btns');
   const topbar=document.getElementById('gd-topbar');
   const loginBtn=document.getElementById('btn-gd-login');
   const logoutBtn=document.getElementById('btn-gd-logout');
-  if(cidInput&&gdClientId) cidInput.value=gdClientId;
   if(gdToken){
     if(bar) bar.innerHTML='<div class="alert alert-success" style="margin-bottom:10px">Đã kết nối Google Drive</div>';
     if(syncBtns) syncBtns.style.display='flex';
@@ -1255,9 +1245,7 @@ function renderGdStatus(){
     if(loginBtn) loginBtn.style.display='none';
     if(logoutBtn) logoutBtn.style.display='inline-flex';
   } else {
-    if(bar) bar.innerHTML=gdClientId
-      ?'<div class="alert alert-warn" style="margin-bottom:10px">Chưa đăng nhập Google — bấm "Đăng nhập Google"</div>'
-      :'<div class="alert alert-warn" style="margin-bottom:10px">Nhập Client ID rồi đăng nhập để bật đồng bộ</div>';
+    if(bar) bar.innerHTML='<div class="alert alert-warn" style="margin-bottom:10px">Chưa đăng nhập — bấm "Đăng nhập Google"</div>';
     if(syncBtns) syncBtns.style.display='none';
     if(topbar) topbar.style.display='none';
     if(loginBtn) loginBtn.style.display='inline-flex';
