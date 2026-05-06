@@ -221,15 +221,43 @@ select option{background:var(--bg3)}
         <div id="strat-saved-list"><div style="font-size:12px;color:var(--text3)">Chưa có chiến lược nào.</div></div>
       </div>
       <div id="strat-results" style="display:none">
+        <!-- Keyword Ideas + Topic Cluster side by side -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+
+          <!-- Keyword Ideas -->
+          <div class="card" style="margin-bottom:0">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Keyword Ideas
+              <button class="btn btn-ghost btn-sm" onclick="genKeywordIdeas()" id="btn-gen-ideas" style="margin-left:auto;font-size:10px;padding:3px 8px">Tạo thêm</button>
+            </div>
+            <div id="keyword-ideas-list">
+              <div style="font-size:11px;color:var(--text3)">Đang tạo keyword ideas...</div>
+            </div>
+          </div>
+
+          <!-- Topic Cluster quick nav -->
+          <div class="card" style="margin-bottom:0">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+              Danh sách bài viết
+              <span id="strat-summary" style="margin-left:auto;font-size:11px;color:var(--text3)"></span>
+            </div>
+            <div id="cluster-quick-list" style="max-height:260px;overflow-y:auto"></div>
+          </div>
+
+        </div>
+
+        <!-- View toggle + actions -->
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
           <button class="btn btn-primary btn-sm" id="btn-view-tree" onclick="stratSetView('tree')">Sơ đồ cây</button>
-          <button class="btn btn-ghost btn-sm" id="btn-view-table" onclick="stratSetView('table')">Danh sách</button>
+          <button class="btn btn-ghost btn-sm" id="btn-view-table" onclick="stratSetView('table')">Bảng chi tiết</button>
           <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-            <span id="strat-summary" style="font-size:12px;color:var(--text3)"></span>
             <button class="btn btn-ghost btn-sm" onclick="stratSave()">Lưu chiến lược</button>
             <button class="btn btn-danger btn-sm" onclick="stratClearResults()">Xóa</button>
           </div>
         </div>
+
         <div class="card" id="strat-tree-view" style="padding:0;overflow:hidden">
           <div id="strat-spider-container"></div>
         </div>
@@ -262,6 +290,34 @@ select option{background:var(--bg3)}
             </select>
             <label>Ghi chú</label>
             <textarea id="ai-note" rows="2" placeholder="Yêu cầu đặc biệt..."></textarea>
+
+            <!-- SERP Analysis -->
+            <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">
+                  SERP Analysis (tùy chọn)
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="toggleSerpPanel()" id="btn-toggle-serp" style="font-size:10px;padding:3px 8px">Mở</button>
+              </div>
+              <div id="serp-panel" style="display:none">
+                <div class="alert alert-info" style="font-size:11px;line-height:1.6;margin-bottom:8px">
+                  Nhập URL bài viết top 10 của đối thủ. Tool tự động đọc nội dung và phân tích intent, cấu trúc, content gap để tạo dàn ý thông minh hơn.
+                </div>
+                <div id="serp-url-list">
+                  <div style="display:flex;gap:6px;margin-bottom:6px">
+                    <input class="serp-url-input" placeholder="https://example.com/bai-viet" style="flex:1;font-size:12px;padding:6px 9px">
+                    <button class="btn btn-ghost btn-sm" onclick="addSerpUrl()" style="padding:6px 10px;font-size:11px">+</button>
+                  </div>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="addSerpUrl()" style="font-size:11px;width:100%;justify-content:center;margin-bottom:8px">+ Thêm URL</button>
+                <button class="btn btn-primary btn-sm" onclick="runSerpAnalysis()" id="btn-serp-analyze" style="width:100%;justify-content:center">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Phân tích SERP
+                </button>
+                <div id="serp-result" style="display:none;margin-top:10px;background:var(--bg3);border-radius:var(--r2);padding:10px;font-size:11px;line-height:1.7;max-height:160px;overflow-y:auto"></div>
+              </div>
+            </div>
+
             <div class="btn-row">
               <button class="btn btn-primary" onclick="startOutline()" id="btn-start">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -601,7 +657,10 @@ async function runStrategy(){
     stratData=JSON.parse(clean.substring(s,e+1).replace(/[\u0000-\u001F\u007F]/g,' '));
     document.getElementById('strat-results').style.display='block';
     document.getElementById('strat-summary').textContent=`1 Pillar + ${stratData.clusters.length} Clusters`;
-    stratSetView('tree');document.getElementById('strat-results').scrollIntoView({behavior:'smooth'});
+    stratSetView('tree');
+    renderClusterQuickList();
+    genKeywordIdeas();
+    document.getElementById('strat-results').scrollIntoView({behavior:'smooth'});
     stratSave();toast('Chiến lược sẵn sàng!');
   }catch(e){toast('Lỗi: '+e.message,'err');}
   finally{btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Phân tích & lên chiến lược';}
@@ -646,7 +705,84 @@ function renderStratTable(){
   const prioClass={high:'pill-green',medium:'pill-amber',low:'pill-blue'};
   document.getElementById('strat-table-body').innerHTML=all.map((c,i)=>`<tr style="${c.type==='pillar'?'background:rgba(99,102,241,.06)':''}"><td style="color:var(--text3)">${i}</td><td style="font-size:12px;font-weight:${c.type==='pillar'?'600':'400'};max-width:200px">${c.title}</td><td style="color:var(--accent3);font-size:11px">${c.keyword}</td><td><span class="pill ${c.type==='pillar'?'pill-purple':c.type==='informational'?'pill-blue':c.type==='commercial'?'pill-green':'pill-amber'}" style="font-size:10px">${typeLabel[c.type]||c.type}</span></td><td><span class="pill ${prioClass[c.priority]||'pill-blue'}" style="font-size:10px">${prioLabel[c.priority]||c.priority}</span></td><td style="font-size:11px;color:var(--text3)">${c.gsc_clicks?c.gsc_clicks+' clicks':'—'}</td><td><button class="btn btn-primary btn-sm" onclick="stratWritePost(${i===0?'null':i-1})" style="font-size:11px;padding:4px 9px">Viết bài</button></td></tr>`).join('');
 }
-function stratWritePost(idx){if(!stratData)return;const item=idx===null?stratData.pillar:stratData.clusters[idx];showPanel('write');document.getElementById('kw').value=item.keyword||'';document.getElementById('ai-note').value='';toast('Từ khóa: '+item.keyword);}
+function renderClusterQuickList(){
+  if(!stratData)return;
+  const typeLabel={pillar:'Pillar',informational:'Thông tin',commercial:'Thương mại',transactional:'Mua hàng'};
+  const typeClass={pillar:'pill-purple',informational:'pill-blue',commercial:'pill-green',transactional:'pill-amber'};
+  const prioColor={high:'var(--green)',medium:'var(--amber)',low:'var(--text3)'};
+  const all=[{...stratData.pillar,id:0,priority:'high',type:'pillar'},...stratData.clusters];
+  document.getElementById('cluster-quick-list').innerHTML=all.map((c,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:${c.type==='pillar'?'600':'400'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.title}</div>
+        <div style="font-size:10px;color:var(--accent3);margin-top:2px">${c.keyword}</div>
+      </div>
+      <span class="pill ${typeClass[c.type]||'pill-blue'}" style="font-size:9px;flex-shrink:0">${typeLabel[c.type]||c.type}</span>
+      <div style="width:6px;height:6px;border-radius:50%;background:${prioColor[c.priority]||'var(--text3)'};flex-shrink:0" title="${c.priority}"></div>
+      <button class="btn btn-primary btn-sm" onclick="stratWritePost(${i===0?'null':i-1})"
+        style="font-size:10px;padding:3px 8px;flex-shrink:0">Viết</button>
+    </div>`).join('');
+}
+
+async function genKeywordIdeas(){
+  if(!stratData||!S.apiKey)return;
+  const el=document.getElementById('keyword-ideas-list');
+  if(!el)return;
+  const btn=document.getElementById('btn-gen-ideas');
+  if(btn){btn.disabled=true;btn.textContent='Đang tạo...';}
+  el.innerHTML='<div style="font-size:11px;color:var(--text3)"><span class="spin" style="border-top-color:var(--accent2);border-color:var(--border2);width:10px;height:10px;border-width:1.5px"></span> Đang phân tích keyword ideas...</div>';
+  const topic=stratData.pillar?.keyword||document.getElementById('strat-topic').value;
+  const clusters=stratData.clusters.map(c=>c.keyword).join(', ');
+  const prompt=`Dựa trên chủ đề "${topic}" và các cluster: ${clusters}.
+Tạo 10 keyword ideas bổ sung — long-tail, question-based, comparison keywords.
+Mỗi keyword kèm: search intent (info/commercial/transactional) và độ khó ước tính (easy/medium/hard).
+JSON array (KHÔNG text khác):
+[{"keyword":"...","intent":"info","difficulty":"easy"}]`;
+  try{
+    const resp=await callClaude(prompt,'Chỉ JSON.',1000);
+    const clean=resp.replace(/```json|```/g,'').trim();
+    const s=clean.indexOf('['),e=clean.lastIndexOf(']');
+    const data=JSON.parse(clean.substring(s,e+1));
+    const intentLabel={info:'Thông tin',commercial:'Thương mại',transactional:'Mua hàng'};
+    const intentClass={info:'pill-blue',commercial:'pill-green',transactional:'pill-amber'};
+    const diffColor={easy:'var(--green)',medium:'var(--amber)',hard:'var(--red)'};
+    const diffLabel={easy:'Dễ',medium:'TB',hard:'Khó'};
+    el.innerHTML=data.map(d=>`
+      <div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.keyword}</div>
+          <div style="display:flex;gap:5px;margin-top:3px">
+            <span class="pill ${intentClass[d.intent]||'pill-blue'}" style="font-size:9px">${intentLabel[d.intent]||d.intent}</span>
+            <span style="font-size:10px;color:${diffColor[d.difficulty]||'var(--text3)'}">● ${diffLabel[d.difficulty]||d.difficulty}</span>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="quickWriteKw('${d.keyword.replace(/'/g,'&apos;')}','${d.intent}')"
+          style="font-size:10px;padding:3px 8px;flex-shrink:0">Viết</button>
+      </div>`).join('');
+    toast('Đã tạo '+data.length+' keyword ideas!');
+  }catch(e){
+    el.innerHTML=`<div style="font-size:11px;color:var(--red)">Lỗi: ${e.message}</div>`;
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Tạo thêm';}
+  }
+}
+
+function quickWriteKw(keyword,intent){
+  showPanel('write');
+  document.getElementById('kw').value=keyword;
+  // Map intent to tone
+  const toneMap={commercial:'chuyên nghiệp, B2B',transactional:'tư vấn, hướng dẫn',info:'thân thiện, dễ hiểu'};
+  const toneEl=document.getElementById('ai-tone');
+  if(toneEl&&toneMap[intent]){
+    const opts=Array.from(toneEl.options);
+    const match=opts.find(o=>o.value===toneMap[intent]);
+    if(match) toneEl.value=match.value;
+  }
+  updateScore();
+  toast('Từ khóa: '+keyword+' — Bấm "Tạo dàn ý" để bắt đầu');
+}
+
+function stratWritePost(idx){if(!stratData)return;const item=idx===null?stratData.pillar:stratData.clusters[idx];quickWriteKw(item.keyword||'',item.type||'info');}
 function stratSave(){
   if(!stratData)return;
   const topic=document.getElementById('strat-topic').value.trim()||stratData.pillar?.keyword||'Chủ đề';
@@ -655,10 +791,156 @@ function stratSave(){
   const idx=saved.findIndex(s=>s.topic===topic);if(idx>=0)saved[idx]=entry;else saved.unshift(entry);
   if(saved.length>20)saved.pop();LS.set('seo_strategies',saved);renderStratSavedList();gdAutoSave();toast('Đã lưu: '+topic);
 }
-function stratLoad(id){const saved=LS.get('seo_strategies',[]),entry=saved.find(s=>s.id===id);if(!entry)return;stratData=entry.data;document.getElementById('strat-topic').value=entry.topic;document.getElementById('strat-results').style.display='block';document.getElementById('strat-summary').textContent=`1 Pillar + ${stratData.clusters.length} Clusters`;stratSetView('tree');document.getElementById('strat-results').scrollIntoView({behavior:'smooth'});toast('Đã tải: '+entry.topic);}
+function stratLoad(id){
+  const saved=LS.get('seo_strategies',[]),entry=saved.find(s=>s.id===id);
+  if(!entry)return;
+  stratData=entry.data;
+  document.getElementById('strat-topic').value=entry.topic;
+  document.getElementById('strat-results').style.display='block';
+  document.getElementById('strat-summary').textContent=`1 Pillar + ${stratData.clusters.length} Clusters`;
+  stratSetView('tree');
+  renderClusterQuickList();
+  genKeywordIdeas();
+  document.getElementById('strat-results').scrollIntoView({behavior:'smooth'});
+  toast('Đã tải: '+entry.topic);
+}
 function stratDelete(id){if(!confirm('Xóa chiến lược này?'))return;LS.set('seo_strategies',LS.get('seo_strategies',[]).filter(s=>s.id!==id));renderStratSavedList();toast('Đã xóa');}
 function stratClearResults(){if(!confirm('Xóa kết quả?'))return;stratData=null;document.getElementById('strat-results').style.display='none';}
 function renderStratSavedList(){const el=document.getElementById('strat-saved-list');if(!el)return;const saved=LS.get('seo_strategies',[]);if(!saved.length){el.innerHTML='<div style="font-size:12px;color:var(--text3)">Chưa có chiến lược nào.</div>';return;}el.innerHTML=saved.map(s=>`<div class="saved-item"><div style="flex:1"><div style="font-size:13px;font-weight:500">${s.topic}</div><div style="font-size:11px;color:var(--text3)">${s.date} — 1 Pillar + ${s.data?.clusters?.length||0} Clusters</div></div><button class="btn btn-ghost btn-sm" onclick="stratLoad('${s.id}')">Tải lại</button><button class="btn btn-danger btn-sm" onclick="stratDelete('${s.id}')">Xóa</button></div>`).join('');}
+
+// ─ SERP Analysis via Jina AI
+let serpData=null;
+
+function toggleSerpPanel(){
+  const panel=document.getElementById('serp-panel');
+  const btn=document.getElementById('btn-toggle-serp');
+  const isOpen=panel.style.display!=='none';
+  panel.style.display=isOpen?'none':'block';
+  btn.textContent=isOpen?'Mở':'Đóng';
+}
+
+function addSerpUrl(){
+  const list=document.getElementById('serp-url-list');
+  const inputs=list.querySelectorAll('.serp-url-input');
+  if(inputs.length>=5){toast('Tối đa 5 URL','err');return;}
+  const div=document.createElement('div');
+  div.style.cssText='display:flex;gap:6px;margin-bottom:6px';
+  div.innerHTML=`<input class="serp-url-input" placeholder="https://example.com/bai-viet" style="flex:1;font-size:12px;padding:6px 9px">
+    <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()" style="padding:6px 8px;font-size:11px">✕</button>`;
+  list.appendChild(div);
+}
+
+async function fetchUrlViaJina(url){
+  // Jina AI Reader — đọc URL, trả về markdown sạch, miễn phí, CORS friendly
+  const jinaUrl='https://r.jina.ai/'+url;
+  const r=await fetch(jinaUrl,{
+    headers:{
+      'Accept':'text/plain',
+      'X-Return-Format':'text',
+    }
+  });
+  if(!r.ok) throw new Error('Không đọc được: '+url);
+  const text=await r.text();
+  // Giới hạn 3000 ký tự/URL để tiết kiệm token
+  return text.substring(0,3000);
+}
+
+async function runSerpAnalysis(){
+  const inputs=document.querySelectorAll('.serp-url-input');
+  const urls=[...inputs].map(i=>i.value.trim()).filter(u=>u.startsWith('http'));
+  if(!urls.length){toast('Nhập ít nhất 1 URL đối thủ','err');return;}
+  if(!S.apiKey){toast('Cần API key Claude','err');return;}
+
+  const btn=document.getElementById('btn-serp-analyze');
+  const resultEl=document.getElementById('serp-result');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang phân tích...';
+  resultEl.style.display='none';
+
+  try{
+    // Fetch tất cả URL song song
+    toast('Đang đọc nội dung '+urls.length+' URL...');
+    const fetched=await Promise.allSettled(urls.map(async(url,i)=>{
+      try{
+        const content=await fetchUrlViaJina(url);
+        return{url,content,ok:true};
+      }catch(e){
+        return{url,content:'',ok:false,error:e.message};
+      }
+    }));
+
+    const succeeded=fetched.filter(r=>r.value?.ok).map(r=>r.value);
+    const failed=fetched.filter(r=>!r.value?.ok).map(r=>r.value);
+
+    if(!succeeded.length){
+      throw new Error('Không đọc được URL nào. Kiểm tra lại URL hoặc thử URL khác.');
+    }
+
+    if(failed.length){
+      toast(`${failed.length} URL không đọc được, tiếp tục với ${succeeded.length} URL còn lại`,'err');
+    }
+
+    // Gửi Claude phân tích
+    toast('Đang phân tích với AI...');
+    const kw=document.getElementById('kw').value||'(chưa nhập keyword)';
+    const contentDump=succeeded.map((s,i)=>
+      `--- URL ${i+1}: ${s.url} ---\n${s.content}`
+    ).join('\n\n');
+
+    const prompt=`Phân tích nội dung top ${succeeded.length} bài đối thủ cho keyword: "${kw}"
+
+${contentDump}
+
+Phân tích và trả về JSON (KHÔNG text khác):
+{
+  "intent": "informational|commercial|transactional",
+  "intent_note": "giải thích ngắn gọn intent",
+  "avg_word_count": 1200,
+  "common_h2": ["heading phổ biến 1", "heading 2", "heading 3"],
+  "must_have_sections": ["mục bắt buộc phải có 1", "mục 2"],
+  "content_gaps": ["cơ hội khác biệt 1", "cơ hội 2"],
+  "key_entities": ["entity quan trọng 1", "entity 2", "entity 3"],
+  "recommended_angle": "góc độ khác biệt để nổi bật hơn đối thủ"
+}`;
+
+    const resp=await callClaude(prompt,'Chỉ JSON.',1500);
+    const clean=resp.replace(/```json|```/g,'').trim();
+    const s2=clean.indexOf('{'),e2=clean.lastIndexOf('}');
+    serpData=JSON.parse(clean.substring(s2,e2+1));
+
+    // Hiển thị kết quả
+    const intentLabel={informational:'Thông tin',commercial:'Thương mại',transactional:'Mua hàng'};
+    const intentClass={informational:'pill-blue',commercial:'pill-green',transactional:'pill-amber'};
+    resultEl.style.display='block';
+    resultEl.innerHTML=`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span class="pill ${intentClass[serpData.intent]||'pill-blue'}">${intentLabel[serpData.intent]||serpData.intent}</span>
+        <span style="color:var(--text3)">${serpData.intent_note||''}</span>
+        <span style="margin-left:auto;color:var(--text3)">~${serpData.avg_word_count} từ</span>
+      </div>
+      <div style="margin-bottom:6px"><strong style="font-size:10px;color:var(--text3);text-transform:uppercase">Heading phổ biến:</strong>
+        ${(serpData.common_h2||[]).map(h=>`<div style="padding:2px 0;color:var(--text2)">• ${h}</div>`).join('')}
+      </div>
+      <div style="margin-bottom:6px"><strong style="font-size:10px;color:var(--text3);text-transform:uppercase">Content gap (cơ hội):</strong>
+        ${(serpData.content_gaps||[]).map(g=>`<div style="padding:2px 0;color:var(--green)">✦ ${g}</div>`).join('')}
+      </div>
+      <div style="margin-bottom:6px"><strong style="font-size:10px;color:var(--text3);text-transform:uppercase">Entity quan trọng:</strong>
+        <div style="margin-top:3px">${(serpData.key_entities||[]).map(e=>`<span style="display:inline-block;background:var(--bg4);border:1px solid var(--border2);padding:1px 7px;border-radius:20px;font-size:10px;margin:2px">${e}</span>`).join('')}</div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px">
+        <strong style="font-size:10px;color:var(--accent3);text-transform:uppercase">Góc độ khác biệt:</strong>
+        <div style="color:var(--text);margin-top:3px">${serpData.recommended_angle||''}</div>
+      </div>`;
+
+    toast('Phân tích SERP xong! Bấm "Tạo dàn ý" để dùng data này.');
+  }catch(e){
+    resultEl.style.display='block';
+    resultEl.innerHTML=`<span style="color:var(--red)">Lỗi: ${e.message}</span>`;
+    toast('Lỗi phân tích: '+e.message,'err');
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Phân tích SERP';
+  }
+}
 
 // ─ Outline & Write
 async function startOutline(){
@@ -670,12 +952,37 @@ async function startOutline(){
     if(custom){outline=custom;}
     else{
       const words=document.getElementById('ai-words').value||1200,tone=document.getElementById('ai-tone').value,note=document.getElementById('ai-note').value;
-      const prompt=`Tạo dàn ý ngắn gọn cho bài SEO tiếng Việt.\nTừ khóa: ${kw}\nSố từ: ${words} | Giọng: ${tone}\n${note?'Ghi chú: '+note:''}\nFormat (heading + tóm tắt 1 dòng):\n## Tiêu đề H2\nTóm tắt nội dung ngắn\n### Tiêu đề H3\nTóm tắt\nYêu cầu: 5-7 H2, gạch đầu dòng tối đa 1 dòng/mục, không giải thích thêm.`;
+      const serpSection=serpData?`
+DỮ LIỆU PHÂN TÍCH SERP (từ ${document.querySelectorAll('.serp-url-input').length} bài đối thủ):
+- Search intent: ${serpData.intent} — ${serpData.intent_note||''}
+- Độ dài trung bình đối thủ: ~${serpData.avg_word_count} từ
+- Heading phổ biến: ${(serpData.common_h2||[]).join(', ')}
+- Mục bắt buộc có: ${(serpData.must_have_sections||[]).join(', ')}
+- Content gap (cơ hội): ${(serpData.content_gaps||[]).join(', ')}
+- Entity quan trọng: ${(serpData.key_entities||[]).join(', ')}
+- Góc độ khác biệt đề xuất: ${serpData.recommended_angle||''}
+
+YÊU CẦU: Dàn ý phải bao gồm các mục bắt buộc, khai thác content gap, và thể hiện góc độ khác biệt.`:'';
+
+      const prompt=`Tạo dàn ý ngắn gọn cho bài SEO tiếng Việt.
+
+Từ khóa: ${kw}
+Số từ: ${words} | Giọng: ${tone}
+${note?'Ghi chú: '+note:''}
+${serpSection}
+
+Format (heading + tóm tắt 1 dòng):
+## Tiêu đề H2
+Tóm tắt nội dung ngắn
+### Tiêu đề H3 (nếu cần)
+Tóm tắt
+
+Yêu cầu: 5-7 H2, gạch đầu dòng tối đa 1 dòng/mục, không giải thích thêm.`;
       outline=await callClaude(prompt,'Chỉ trả về dàn ý.',2500);
     }
     S.outline=outline;document.getElementById('outline-editor').value=outline;
     document.getElementById('card-outline').style.display='block';document.getElementById('card-outline').scrollIntoView({behavior:'smooth'});
-    toast('Dàn ý sẵn sàng!');
+    toast('Dàn ý sẵn sàng!'+(serpData?' — Có data SERP ✓':''));
   }catch(e){toast('Lỗi: '+e.message,'err');}
   finally{btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Tạo dàn ý';}
 }
@@ -878,6 +1185,12 @@ function saveLocal(){savePostRecord({status:'local',url:''});toast('Đã lưu lo
 function resetWrite(){
   ['kw','title','meta','ai-note','outline-editor','cat-id','tags-input','post-slug','post-excerpt','post-author','post-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=id==='cat-id'?'1':id==='post-author'?'1':'';});
   clearEditorContent();document.getElementById('card-outline').style.display='none';document.getElementById('card-publish').style.display='none';document.getElementById('card-images').style.display='none';document.getElementById('write-status').textContent='';document.getElementById('link-suggestions').innerHTML='';clearMediaUpload();S.outline='';updateScore();
+  // Reset SERP
+  serpData=null;
+  const sp=document.getElementById('serp-panel');if(sp)sp.style.display='none';
+  const stb=document.getElementById('btn-toggle-serp');if(stb)stb.textContent='Mở';
+  const sr=document.getElementById('serp-result');if(sr){sr.style.display='none';sr.innerHTML='';}
+  const ul=document.getElementById('serp-url-list');if(ul)ul.innerHTML='<div style="display:flex;gap:6px;margin-bottom:6px"><input class="serp-url-input" placeholder="https://example.com/bai-viet" style="flex:1;font-size:12px;padding:6px 9px"><button class="btn btn-ghost btn-sm" onclick="addSerpUrl()" style="padding:6px 10px;font-size:11px">+</button></div>';
 }
 function updateBadge(){document.getElementById('badge-count').textContent=S.posts.length;}
 
